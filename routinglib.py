@@ -256,8 +256,8 @@ class PimProtocol(Protocol):
         
     def config(self, **kwargs):
         pimPidFile = '%s/pim%s.pid' % (self.qr.runDir, self.qr.name)
-        
-        self.qr.cmd('%s/pimd -d -f %s -z %s -i %s'
+                
+        self.qr.cmd('%s/pimd -Z -d -f %s -z %s -i %s'
                      % (QuaggaRouter.binDir, self.configFile, self.qr.socket, pimPidFile))
         
 class ConfigurationWriter(object):

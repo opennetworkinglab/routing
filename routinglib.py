@@ -9,6 +9,7 @@ from mininet.nodelib import NAT
 from mininet.log import info, debug, error
 from mininet.cli import CLI
 from ipaddress import ip_network, ip_address, ip_interface
+import os
 
 class RoutedHost(Host):
     """Host that can be configured with multiple IP addresses."""
@@ -75,6 +76,7 @@ class QuaggaRouter(Router):
     """Runs Quagga to create a router that can speak routing protocols."""
     
     binDir = '/usr/lib/quagga'
+    logDir = '/var/log/quagga'
     
     def __init__(self, name, interfaces,
                  defaultRoute=None,
@@ -93,6 +95,16 @@ class QuaggaRouter(Router):
         self.runDir = runDir
         self.defaultRoute = defaultRoute
         
+        # Ensure required directories exist
+        try:
+            original_umask = os.umask(0)
+            if (not os.path.isdir(QuaggaRouter.logDir)):
+                os.makedirs(QuaggaRouter.logDir, 0777)
+            if (not os.path.isdir(self.runDir)):
+                os.makedirs(self.runDir, 0777)
+        finally:
+            os.umask(original_umask)
+
         self.zebraConfFile = zebraConfFile
         if (self.zebraConfFile is None):
             self.zebraConfFile = '%s/zebrad%s.conf' % (self.runDir, self.name)
@@ -104,6 +116,7 @@ class QuaggaRouter(Router):
 
     def generateZebra(self):
         configFile = open(self.zebraConfFile, 'w+')
+        configFile.write('log file %s/zebrad%s.log\n' % (QuaggaRouter.logDir, self.name))
         configFile.write('hostname zebra-%s\n' % self.name)
         configFile.write('password %s\n' % 'hello')
         if (self.fpm is not None):
@@ -176,6 +189,7 @@ class BgpProtocol(Protocol):
                 intfAttributes = intfAttributes[1] if not intfAttributes[0]['ipAddrs'] else intfAttributes[0]
             return intfAttributes['ipAddrs'][0].split('/')[0]
         
+        conf.writeLine('log file %s/bgpd%s.log' % (QuaggaRouter.logDir, self.qr.name))
         conf.writeLine('hostname bgp-%s' % self.qr.name);
         conf.writeLine('password %s' % 'sdnip')
         conf.writeLine('!')

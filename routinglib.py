@@ -528,11 +528,13 @@ class SdnAutonomousSystem(AutonomousSystem):
     """Runs the internal BGP speakers needed for ONOS routing apps like
     SDN-IP."""
     
-    def __init__(self, onosIps, numBgpSpeakers=1, asNum=65000, externalOnos=True, peerIntfConfig=None):
+    def __init__(self, onosIps, numBgpSpeakers=1, asNum=65000, externalOnos=True,
+                 peerIntfConfig=None, withFpm=False):
         super(SdnAutonomousSystem, self).__init__(asNum, numBgpSpeakers)
         self.onosIps = onosIps
         self.numBgpSpeakers = numBgpSpeakers
         self.peerIntfConfig = peerIntfConfig
+        self.withFpm = withFpm
         self.externalOnos= externalOnos
         self.internalPeeringSubnet = ip_network(u'1.1.1.0/24')
         
@@ -577,7 +579,7 @@ class SdnAutonomousSystem(AutonomousSystem):
                                     neighbors=router.neighbors,
                                     interfaces=intfs, 
                                     defaultRoute=str(natIp.ip),
-                                    fpm=self.onosIps[0] )
+                                    fpm=self.onosIps[0] if self.withFpm else None )
             
             topology.addLink( bgp, controlSwitch )
             topology.addLink( bgp, connectAtSwitch )

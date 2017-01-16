@@ -4,7 +4,7 @@ from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
-from mininet.node import RemoteController, OVSBridge
+from mininet.node import RemoteController, OVSBridge, UserSwitch
 from routinglib import BasicAutonomousSystem
 from routinglib import SdnAutonomousSystem, AutonomousSystem
 from routinglib import generateRoutes
@@ -16,11 +16,11 @@ class VrouterTopo( Topo ):
     def __init__( self, *args, **kwargs ):
         Topo.__init__( self, *args, **kwargs )
         # Router switch
-        s1 = self.addSwitch('s1', dpid='00000000000000b1')
+        s1 = self.addSwitch('s1', dpid='000000000b1')
         
         # SDN AS
         onosIps = ['192.168.56.11']
-        sdnAs = SdnAutonomousSystem(onosIps, numBgpSpeakers=1, asNum=65000)
+        sdnAs = SdnAutonomousSystem(onosIps, numBgpSpeakers=1, asNum=65000, withFpm=True)
         
         numRoutesPerAs = 1
         
@@ -61,6 +61,8 @@ if __name__ == "__main__":
 
     net = Mininet(topo=topo, controller=None)
     net.addController(RemoteController('c0', ip='192.168.56.11'))
+    net.addController(RemoteController('c1', ip='192.168.56.12'))
+    net.addController(RemoteController('c2', ip='192.168.56.13'))
 
     net.start()
 

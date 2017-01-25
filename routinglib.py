@@ -118,7 +118,7 @@ class QuaggaRouter(Router):
         configFile = open(self.zebraConfFile, 'w+')
         configFile.write('log file %s/zebrad%s.log\n' % (QuaggaRouter.logDir, self.name))
         configFile.write('hostname zebra-%s\n' % self.name)
-        configFile.write('password %s\n' % 'hello')
+        configFile.write('password %s\n' % 'quagga')
         if (self.fpm is not None):
             configFile.write('fpm connection ip %s port 2620' % self.fpm)
         configFile.close()
@@ -191,7 +191,7 @@ class BgpProtocol(Protocol):
         
         conf.writeLine('log file %s/bgpd%s.log' % (QuaggaRouter.logDir, self.qr.name))
         conf.writeLine('hostname bgp-%s' % self.qr.name);
-        conf.writeLine('password %s' % 'sdnip')
+        conf.writeLine('password %s' % 'quagga')
         conf.writeLine('!')
         conf.writeLine('router bgp %s' % self.asNum)
         
@@ -542,10 +542,13 @@ class SdnAutonomousSystem(AutonomousSystem):
     """Runs the internal BGP speakers needed for ONOS routing apps like
     SDN-IP."""
     
-    def __init__(self, onosIps, numBgpSpeakers=1, asNum=65000, externalOnos=True,
+    routerIdx = 1
+    
+    def __init__(self, onosIps, num=1, numBgpSpeakers=1, asNum=65000, externalOnos=True,
                  peerIntfConfig=None, withFpm=False):
         super(SdnAutonomousSystem, self).__init__(asNum, numBgpSpeakers)
         self.onosIps = onosIps
+        self.num = num
         self.numBgpSpeakers = numBgpSpeakers
         self.peerIntfConfig = peerIntfConfig
         self.withFpm = withFpm
@@ -561,7 +564,8 @@ class SdnAutonomousSystem(AutonomousSystem):
             for i, router2 in self.routers.items():
                 if router == router2:
                     continue
-                ip = AutonomousSystem.getIthAddress(self.internalPeeringSubnet, 10+i)
+                cpIpBase = self.num*10
+                ip = AutonomousSystem.getIthAddress(self.internalPeeringSubnet, cpIpBase+i)
                 router.neighbors.append({'address':ip.ip, 'as':asNum})
         
     def build(self, topology, connectAtSwitch, controlSwitch):
@@ -569,20 +573,24 @@ class SdnAutonomousSystem(AutonomousSystem):
         natIp = AutonomousSystem.getLastAddress(self.internalPeeringSubnet)
         
         for i, router in self.routers.items():
-            name = 'bgp%s' % i
+            num = SdnAutonomousSystem.routerIdx
+            SdnAutonomousSystem.routerIdx += 1
+            name = 'bgp%s' % num
             
-            ip = AutonomousSystem.getIthAddress(self.internalPeeringSubnet, 10+i)
+            cpIpBase = self.num*10
+            ip = AutonomousSystem.getIthAddress(self.internalPeeringSubnet, cpIpBase+i)
+            
             eth0 = { 'ipAddrs' : [ str(ip) ] }
             if self.peerIntfConfig is not None:
                 eth1 = self.peerIntfConfig
             else:
                 nativeAddresses = router.interfaces[1].addressesByVlan.pop(None, [])
-                eth1 = [{ 'mac':'00:00:00:00:00:%02x' % i, 
+                eth1 = [{ 'mac':'00:00:00:00:00:%02x' % num, 
                          'ipAddrs' : nativeAddresses }]
                 
                 for vlan, addresses in router.interfaces[1].addressesByVlan.items():
                     eth1.append({'vlan':vlan,
-                                'mac':'00:00:00:%02x:%02x:00' % (i, vlan),
+                                'mac':'00:00:00:%02x:%02x:00' % (num, vlan),
                                 'ipAddrs':addresses})
             
             

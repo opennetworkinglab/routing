@@ -310,7 +310,7 @@ class BgpRouter(QuaggaRouter):
     """Quagga router running the BGP protocol."""
 
     def __init__(self, name, interfaces,
-                 asNum, neighbors, routes=[],
+                 asNum=0, neighbors=[], routes=[],
                  defaultRoute=None,
                  quaggaConfFile=None,
                  zebraConfFile=None,

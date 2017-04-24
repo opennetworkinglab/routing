@@ -38,11 +38,14 @@ class Trellis( Topo ):
         h1 = self.addHost('h1', cls=DhcpClient, mac='00:aa:00:00:00:01')
         h2 = self.addHost('h2', cls=TaggedDhcpClient, mac='00:aa:00:00:00:02', vlan=20)
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
-        h4 = self.addHost('h4', cls=TaggedDhcpClient, mac='00:aa:00:00:00:04', vlan=30)
+        h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')
+        # In order to emulate tagged Quagga VM in h4
+        h4ovs = self.addSwitch('h4ovs', cls=OVSBridge)
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)
-        self.addLink(h4, s205)
+        self.addLink(h4ovs, s205)
+        self.addLink(h4ovs, h4)
 
         # IPv6 Hosts
         h1v6 = self.addHost('h1v6', cls=RoutedHost, mac='00:bb:00:00:00:01', ips=['2000::201/120'], gateway='2000::2ff')
@@ -68,13 +71,13 @@ class Trellis( Topo ):
         self.addLink(cs0, nat)
 
         # Internal Quagga bgp1
-        intfs = {'bgp1-eth0': {'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:02'},
+        intfs = {'bgp1-eth0': {'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:02', 'vlan': '10'},
                  'bgp1-eth1': {'ipAddrs': ['172.16.0.2/12']}}
         bgp1 = self.addHost('bgp1', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdbgp1.conf',
                             zebraConfFile='./zebradbgp1.conf')
-        self.addLink(bgp1, s205)
+        self.addLink(bgp1, h4ovs)
         self.addLink(bgp1, cs0)
 
         # External Quagga r1

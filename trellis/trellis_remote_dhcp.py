@@ -11,6 +11,7 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost
+from trellislib import DhcpClient, DhcpServer
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -99,35 +100,6 @@ class Trellis( Topo ):
         self.addLink(r1, rh1v6)
 
 topos = { 'trellis' : Trellis }
-
-class DhcpClient(Host):
-    def __init__(self, name, *args, **kwargs):
-        super(DhcpClient, self).__init__(name, **kwargs)
-        self.pidFile = '/run/dhclient-%s.pid' % self.name
-
-    def config(self, **kwargs):
-        super(DhcpClient, self).config(**kwargs)
-        self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpClient, self).terminate()
-
-class DhcpServer(RoutedHost):
-    binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd.pid'
-    configFile = './dhcpd.conf'
-
-    def config(self, **kwargs):
-        super(DhcpServer, self).config(**kwargs)
-        self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpServer, self).terminate()
 
 if __name__ == "__main__":
     setLogLevel('debug')

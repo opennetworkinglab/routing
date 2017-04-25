@@ -11,6 +11,8 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost
+from trellislib import DhcpClient, DhcpServer
+from trellislib import TaggedDhcpClient, TaggedDhcpServer
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -98,95 +100,6 @@ class Trellis( Topo ):
         self.addLink(r1, rh1v6)
 
 topos = { 'trellis' : Trellis }
-
-class DhcpClient(Host):
-    def __init__(self, name, *args, **kwargs):
-        super(DhcpClient, self).__init__(name, **kwargs)
-        self.pidFile = '/run/dhclient-%s.pid' % self.name
-
-    def config(self, **kwargs):
-        super(DhcpClient, self).config(**kwargs)
-        self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpClient, self).terminate()
-
-class TaggedDhcpClient(Host):
-    def __init__(self, name, vlan, *args, **kwargs):
-        super(TaggedDhcpClient, self).__init__(name, **kwargs)
-        self.pidFile = '/run/dhclient-%s.pid' % self.name
-        self.vlan = vlan
-        self.vlanIntf = None
-
-    def config(self, **kwargs):
-        super(TaggedDhcpClient, self).config(**kwargs)
-        self.vlanIntf = "%s.%s" % (self.defaultIntf(), self.vlan)
-        self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('ip link add link %s name %s type vlan id %s' % (self.defaultIntf(), self.vlanIntf, self.vlan))
-        self.cmd('ip link set up %s' % self.vlanIntf)
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.vlanIntf))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        self.cmd('ip link remove link %s' % self.vlanIntf)
-        super(TaggedDhcpClient, self).terminate()
-
-class DhcpServer(RoutedHost):
-    binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd.pid'
-    configFile = './dhcpd.conf'
-
-    def config(self, **kwargs):
-        super(DhcpServer, self).config(**kwargs)
-        self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpServer, self).terminate()
-
-class TaggedRoutedHost(RoutedHost):
-    """Host that can be configured with multiple IP addresses."""
-    def __init__(self, name, ips, gateway, vlan, *args, **kwargs):
-        super(RoutedHost, self).__init__(name, *args, **kwargs)
-        self.ips = ips
-        self.gateway = gateway
-        self.vlan = vlan
-        self.vlanIntf = None
-
-    def config(self, **kwargs):
-        Host.config(self, **kwargs)
-        self.vlanIntf = "%s.%s" % (self.defaultIntf(), self.vlan)
-        self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
-        self.cmd('ip link add link %s name %s type vlan id %s' % (self.defaultIntf(), self.vlanIntf, self.vlan))
-        self.cmd('ip link set up %s' % self.vlanIntf)
-
-        for ip in self.ips:
-            self.cmd('ip addr add %s dev %s' % (ip, self.vlanIntf))
-
-        self.cmd('ip route add default via %s' % self.gateway)
-
-    def terminate(self, **kwargs):
-        self.cmd('ip link remove link %s' % self.vlanIntf)
-        super(TaggedRoutedHost, self).terminate()
-
-class TaggedDhcpServer(TaggedRoutedHost):
-    binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd.pid'
-    configFile = './dhcpd.conf'
-
-    def config(self, **kwargs):
-        super(TaggedDhcpServer, self).config(**kwargs)
-        self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.vlanIntf))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(TaggedDhcpServer, self).terminate()
 
 if __name__ == "__main__":
     setLogLevel('debug')

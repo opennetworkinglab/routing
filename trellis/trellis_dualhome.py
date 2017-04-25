@@ -12,6 +12,8 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost
+from trellislib import DhcpClient, DhcpServer
+from trellislib import DualHomedDhcpClient
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -119,65 +121,6 @@ class Trellis( Topo ):
         self.addLink(r1, rh1v6)
 
 topos = { 'trellis' : Trellis }
-
-# TODO extract dhcp classes to a separate library
-class DhcpClient(Host):
-    def __init__(self, name, *args, **kwargs):
-        super(DhcpClient, self).__init__(name, **kwargs)
-        self.pidFile = '/run/dhclient-%s.pid' % self.name
-
-    def config(self, **kwargs):
-        super(DhcpClient, self).config(**kwargs)
-        self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpClient, self).terminate()
-
-class DualHomedDhcpClient(Host):
-    def __init__(self, name, *args, **kwargs):
-        super(DualHomedDhcpClient, self).__init__(name, **kwargs)
-        self.pidFile = '/run/dhclient-%s.pid' % self.name
-        self.bond0 = None
-
-    def config(self, **kwargs):
-        super(DualHomedDhcpClient, self).config(**kwargs)
-        intf0 = self.intfs[0].name
-        intf1 = self.intfs[1].name
-        self.bond0 = "%s-bond0" % self.name
-        self.cmd('modprobe bonding')
-        self.cmd('ip link add %s type bond' % self.bond0)
-        self.cmd('ip link set %s down' % intf0)
-        self.cmd('ip link set %s down' % intf1)
-        self.cmd('ip link set %s master %s' % (intf0, self.bond0))
-        self.cmd('ip link set %s master %s' % (intf1, self.bond0))
-        self.cmd('ip addr flush dev %s' % intf0)
-        self.cmd('ip addr flush dev %s' % intf1)
-        self.cmd('ip link set %s up' % self.bond0)
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.bond0))
-
-    def terminate(self, **kwargs):
-        self.cmd('ip link set %s down' % self.bond0)
-        self.cmd('ip link delete %s' % self.bond0)
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DualHomedDhcpClient, self).terminate()
-
-class DhcpServer(RoutedHost):
-    binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd.pid'
-    configFile = './dhcpd.conf'
-
-    def config(self, **kwargs):
-        super(DhcpServer, self).config(**kwargs)
-        self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
-
-    def terminate(self, **kwargs):
-        self.cmd('kill -9 `cat %s`' % self.pidFile)
-        self.cmd('rm -rf %s' % self.pidFile)
-        super(DhcpServer, self).terminate()
 
 if __name__ == "__main__":
     setLogLevel('debug')

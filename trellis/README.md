@@ -14,8 +14,7 @@ can be used to emulate Trellis leaf-spine fabric, vRouter and DHCP relay.
 Some dependencies need to be installed for a fresh Ubuntu.
 ```
 sudo apt-get update
-sudo apt-get install texinfo
-sudo apt-get install python-pip
+sudo apt-get install gawk texinfo python-pip
 sudo pip install ipaddress
 ```
 

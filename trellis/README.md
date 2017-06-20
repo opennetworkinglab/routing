@@ -14,7 +14,7 @@ can be used to emulate Trellis leaf-spine fabric, vRouter and DHCP relay.
 Some dependencies need to be installed for a fresh Ubuntu.
 ```
 sudo apt-get update
-sudo apt-get install gawk texinfo python-pip
+sudo apt-get install gawk texinfo python-pip build-essential iptables
 sudo pip install ipaddress
 ```
 
@@ -37,7 +37,7 @@ wget https://wiki.opencord.org/download/attachments/1278529/fpm-remote.diff
 tar -xzvf quagga-0.99.23.tar.gz
 cd quagga-0.99.23
 patch -p1 < ../fpm-remote.diff
-./configure --enable-fpm --sbindir=/usr/lib
+./configure --enable-fpm --sbindir=/usr/lib/quagga
 make
 sudo make install
 cd ..
@@ -64,7 +64,7 @@ net.addController(RemoteController('c1', ip='192.168.56.12'))
 net.addController(RemoteController('c2', ip='192.168.56.13'))
 ```
 
-In `routing/trellis/zebrabgp1.conf`
+In `routing/trellis/zebradbgp1.conf`
 ```
 fpm connection ip 192.168.56.11 port 2620
 ```

@@ -10,8 +10,8 @@ from mininet.node import RemoteController, OVSBridge, Host
 from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
-from routinglib import RoutedHost
-from trellislib import DhcpClient, DhcpServer
+from routinglib import RoutedHost, RoutedHost6
+from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -46,10 +46,10 @@ class Trellis( Topo ):
         self.addLink(h4, s205)
 
         # IPv6 Hosts
-        h1v6 = self.addHost('h1v6', cls=RoutedHost, mac='00:bb:00:00:00:01', ips=['2000::201/120'], gateway='2000::2ff')
-        h2v6 = self.addHost('h2v6', cls=RoutedHost, mac='00:bb:00:00:00:02', ips=['2000::202/120'], gateway='2000::2ff')
-        h3v6 = self.addHost('h3v6', cls=RoutedHost, mac='00:bb:00:00:00:03', ips=['2000::301/120'], gateway='2000::3ff')
-        h4v6 = self.addHost('h4v6', cls=RoutedHost, mac='00:bb:00:00:00:04', ips=['2000::302/120'], gateway='2000::3ff')
+        h1v6 = self.addHost('h1v6', cls=Dhcp6Client, mac='00:bb:00:00:00:01')
+        h2v6 = self.addHost('h2v6', cls=Dhcp6Client, mac='00:bb:00:00:00:02')
+        h3v6 = self.addHost('h3v6', cls=Dhcp6Client, mac='00:bb:00:00:00:03')
+        h4v6 = self.addHost('h4v6', cls=Dhcp6Client, mac='00:bb:00:00:00:04')
         self.addLink(h1v6, s204)
         self.addLink(h2v6, s204)
         self.addLink(h3v6, s205)
@@ -57,7 +57,15 @@ class Trellis( Topo ):
 
         # DHCP server
         dhcp = self.addHost('dhcp', cls=DhcpServer, mac='00:99:00:00:00:01', ips=['10.0.3.253/24'], gateway='10.0.3.254')
-        self.addLink(dhcp, s205)
+
+        # DHCPv6 server
+        dhcp6 = self.addHost('dhcp6', cls=Dhcp6Server, mac='00:99:66:00:00:01', ips=['2000::3fd/120'], gateway='2000::3ff')
+
+        # Control plane switch (for DHCP servers)
+        cs1 = self.addSwitch('cs1', cls=OVSBridge)
+        self.addLink(cs1, s205)
+        self.addLink(dhcp, cs1)
+        self.addLink(dhcp6, cs1)
 
         # Control plane switch (for quagga fpm)
         cs0 = self.addSwitch('cs0', cls=OVSBridge)

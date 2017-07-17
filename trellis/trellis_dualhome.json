@@ -259,38 +259,12 @@
             }
         }
     },
-    "hosts": {
-        "00:bb:00:00:00:01/None": {
-            "basic": {
-                "ips": ["2000::201"],
-                "locations": ["of:0000000000000204/8"]
-            }
-        },
-        "00:bb:00:00:00:02/None": {
-            "basic": {
-                "ips": ["2000::202"],
-                "locations": ["of:0000000000000204/9"]
-            }
-        },
-        "00:bb:00:00:00:03/None": {
-            "basic": {
-                "ips": ["2000::301"],
-                "locations": ["of:0000000000000205/8"]
-            }
-        },
-        "00:bb:00:00:00:04/None": {
-            "basic": {
-                "ips": ["2000::302"],
-                "locations": ["of:0000000000000205/9"]
-            }
-        }
-    },
     "apps" : {
         "org.onosproject.dhcprelay" : {
             "default": [
                 {
                     "dhcpServerConnectPoint": "of:0000000000000205/10",
-                    "serverIps": ["10.0.3.253"]
+                    "serverIps": ["10.0.3.253", "2000::3fd"]
                 }
             ]
         }

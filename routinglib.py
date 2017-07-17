@@ -28,6 +28,23 @@ class RoutedHost(Host):
 
         self.cmd('ip route add default via %s' % self.gateway)
 
+class RoutedHost6(Host):
+    """Host that can be configured with multiple IP addresses."""
+    def __init__(self, name, ips, gateway, *args, **kwargs):
+        super(RoutedHost6, self).__init__(name, *args, **kwargs)
+
+        self.ips = ips
+        self.gateway = gateway
+
+    def config(self, **kwargs):
+        Host.config(self, **kwargs)
+
+        self.cmd('ip -6 addr flush dev %s' % self.defaultIntf())
+        for ip in self.ips:
+            self.cmd('ip -6 addr add %s dev %s' % (ip, self.defaultIntf()))
+
+        self.cmd('ip -6 route add default via %s' % self.gateway)
+
 class Router(Host):
 
     """An L3 router.

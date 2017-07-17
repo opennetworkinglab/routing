@@ -7,7 +7,7 @@ Libraries for Trellis hosts.
 import sys
 sys.path.append('..')
 from mininet.node import Host
-from routinglib import RoutedHost, Router
+from routinglib import RoutedHost, RoutedHost6, Router
 
 class TaggedRoutedHost(RoutedHost):
     """Host that can be configured with multiple IP addresses."""
@@ -38,11 +38,12 @@ class DhcpClient(Host):
     def __init__(self, name, *args, **kwargs):
         super(DhcpClient, self).__init__(name, **kwargs)
         self.pidFile = '/run/dhclient-%s.pid' % self.name
+        self.leaseFile = '/var/lib/dhcp/dhcpclient-%s.lease' % (self.name, )
 
     def config(self, **kwargs):
         super(DhcpClient, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
+        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -53,13 +54,14 @@ class Dhcp6Client(Host):
     def __init__(self, name, *args, **kwargs):
         super(Dhcp6Client, self).__init__(name, **kwargs)
         self.pidFile = '/run/dhclient-%s.pid' % self.name
+        self.leaseFile = '/var/lib/dhcp/dhcpclient6-%s.lease' % (self.name, )
 
     def config(self, **kwargs):
         super(Dhcp6Client, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
         linkLocalAddr = mac_to_ipv6_linklocal(kwargs['mac'])
         self.cmd('ip -6 addr add dev %s scope link %s' % (self.defaultIntf(), linkLocalAddr))
-        self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
+        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -68,11 +70,13 @@ class Dhcp6Client(Host):
 
 class DhcpServer(RoutedHost):
     binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd.pid'
+    pidFile = '/run/dhcp-server-dhcpd.pid'
     configFile = './dhcpd.conf'
+    leasesFile = '/var/lib/dhcp/dhcpd.leases'
 
     def config(self, **kwargs):
         super(DhcpServer, self).config(**kwargs)
+        self.cmd('touch %s' % self.leasesFile)
         self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):
@@ -80,9 +84,9 @@ class DhcpServer(RoutedHost):
         self.cmd('rm -rf %s' % self.pidFile)
         super(DhcpServer, self).terminate()
 
-class Dhcp6Server(RoutedHost):
+class Dhcp6Server(RoutedHost6):
     binFile = '/usr/sbin/dhcpd'
-    pidFile = '/run/dhcp-server/dhcpd6.pid'
+    pidFile = '/run/dhcp-server-dhcpd6.pid'
     configFile = './dhcpd6.conf'
     leasesFile = '/var/lib/dhcp/dhcpd6.leases'
 

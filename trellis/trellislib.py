@@ -49,6 +49,21 @@ class DhcpClient(Host):
         self.cmd('rm -rf %s' % self.pidFile)
         super(DhcpClient, self).terminate()
 
+class Dhcp6Client(Host):
+    def __init__(self, name, *args, **kwargs):
+        super(Dhcp6Client, self).__init__(name, **kwargs)
+        self.pidFile = '/run/dhclient-%s.pid' % self.name
+
+    def config(self, **kwargs):
+        super(Dhcp6Client, self).config(**kwargs)
+        self.cmd('ip addr flush dev %s' % self.defaultIntf())
+        self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
+
+    def terminate(self, **kwargs):
+        self.cmd('kill -9 `cat %s`' % self.pidFile)
+        self.cmd('rm -rf %s' % self.pidFile)
+        super(Dhcp6Client, self).terminate()
+
 class DhcpServer(RoutedHost):
     binFile = '/usr/sbin/dhcpd'
     pidFile = '/run/dhcp-server/dhcpd.pid'
@@ -61,6 +76,23 @@ class DhcpServer(RoutedHost):
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
+        super(DhcpServer, self).terminate()
+
+class Dhcp6Server(RoutedHost):
+    binFile = '/usr/sbin/dhcpd'
+    pidFile = '/run/dhcp-server/dhcpd6.pid'
+    configFile = './dhcpd6.conf'
+    leasesFile = '/var/lib/dhcp/dhcpd6.leases'
+
+    def config(self, **kwargs):
+        super(Dhcp6Server, self).config(**kwargs)
+        self.cmd('touch %s' % self.leasesFile)
+        self.cmd('%s -q -6 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
+
+    def terminate(self, **kwargs):
+        self.cmd('kill -9 `cat %s`' % self.pidFile)
+        self.cmd('rm -rf %s' % self.pidFile)
+        self.cmd('rm -rf  %s' % self.leasesFile)
         super(DhcpServer, self).terminate()
 
 class TaggedDhcpClient(Host):

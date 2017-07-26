@@ -57,6 +57,8 @@ class Dhcp6Client(Host):
     def config(self, **kwargs):
         super(Dhcp6Client, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
+        linkLocalAddr = mac_to_ipv6_linklocal(kwargs['mac'])
+        self.cmd('ip -6 addr add dev %s scope link %s' % (self.defaultIntf(), linkLocalAddr))
         self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):
@@ -86,6 +88,8 @@ class Dhcp6Server(RoutedHost):
 
     def config(self, **kwargs):
         super(Dhcp6Server, self).config(**kwargs)
+        linkLocalAddr = mac_to_ipv6_linklocal(kwargs['mac'])
+        self.cmd('ip -6 addr add dev %s scope link %s' % (self.defaultIntf(), linkLocalAddr))
         self.cmd('touch %s' % self.leasesFile)
         self.cmd('%s -q -6 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
 
@@ -93,7 +97,7 @@ class Dhcp6Server(RoutedHost):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
         self.cmd('rm -rf  %s' % self.leasesFile)
-        super(DhcpServer, self).terminate()
+        super(Dhcp6Server, self).terminate()
 
 class TaggedDhcpClient(Host):
     def __init__(self, name, vlan, *args, **kwargs):
@@ -158,3 +162,21 @@ class DualHomedDhcpClient(Host):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
         super(DualHomedDhcpClient, self).terminate()
+
+# Utility for IPv6
+def mac_to_ipv6_linklocal(mac):
+    '''
+    Convert mac address to link-local IPv6 address
+    '''
+    # Remove the most common delimiters; dots, dashes, etc.
+    mac_value = int(mac.translate(None, ' .:-'), 16)
+
+    # Split out the bytes that slot into the IPv6 address
+    # XOR the most significant byte with 0x02, inverting the
+    # Universal / Local bit
+    high2 = mac_value >> 32 & 0xffff ^ 0x0200
+    high1 = mac_value >> 24 & 0xff
+    low1 = mac_value >> 16 & 0xff
+    low2 = mac_value & 0xffff
+
+    return 'fe80::{:04x}:{:02x}ff:fe{:02x}:{:04x}'.format(high2, high1, low1, low2)

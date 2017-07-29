@@ -11,7 +11,7 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost
-from trellislib import DhcpClient, DhcpServer
+from trellislib import DhcpClient, DhcpServer, DhcpRelay
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -33,6 +33,17 @@ class Trellis( Topo ):
         self.addLink(s227, s204)
         self.addLink(s227, s205)
 
+        intfs = {
+            'relay-eth0': {
+                'ipAddrs': ['10.0.4.254/24']
+            },
+            'relay-eth1': {
+                'ipAddrs': ['10.0.2.100/24']
+            }
+        }
+        dhcpRelay = self.addHost('relay', cls=DhcpRelay, serverIp='10.0.99.3',
+                                 gateway='10.0.2.254', interfaces=intfs)
+
         # NOTE avoid using 10.0.1.0/24 which is the default subnet of quaggas
         # NOTE avoid using 00:00:00:00:00:xx which is the default mac of host behind upstream router
         # IPv4 Hosts
@@ -40,7 +51,8 @@ class Trellis( Topo ):
         h2 = self.addHost('h2', cls=DhcpClient, mac='00:aa:00:00:00:02')
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
         h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')
-        self.addLink(h1, s204)
+        self.addLink(h1, dhcpRelay)
+        self.addLink(dhcpRelay, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)
         self.addLink(h4, s205)

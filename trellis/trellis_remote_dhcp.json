@@ -174,12 +174,14 @@
         }
     },
     "apps" : {
-        "org.onosproject.dhcp-relay" : {
-            "dhcprelay" : {
-                "dhcpserverConnectPoint": "of:0000000000000205/8",
-                "serverip": "10.0.99.3",
-                "gatewayip": "10.0.1.1"
-            }
+        "org.onosproject.dhcprelay" : {
+            "default" : [
+                {
+                    "dhcpServerConnectPoint": "of:0000000000000205/8",
+                    "serverIps": ["10.0.99.3"],
+                    "gatewayIps": ["10.0.1.1"]
+                }
+            ]
         }
     }
 }

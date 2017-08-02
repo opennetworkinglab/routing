@@ -250,11 +250,13 @@
         }
     },
     "apps" : {
-        "org.onosproject.dhcp-relay" : {
-            "dhcprelay" : {
-                "dhcpserverConnectPoint": "of:0000000000000205/10",
-                "serverip": "10.0.3.253"
-            }
+        "org.onosproject.dhcprelay" : {
+            "default": [
+                {
+                    "dhcpServerConnectPoint": "of:0000000000000205/10",
+                    "serverIps": ["10.0.3.253"]
+                }
+            ]
         }
     }
 }

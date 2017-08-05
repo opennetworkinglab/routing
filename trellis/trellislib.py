@@ -7,7 +7,7 @@ Libraries for Trellis hosts.
 import sys
 sys.path.append('..')
 from mininet.node import Host
-from routinglib import RoutedHost
+from routinglib import RoutedHost, Router
 
 class TaggedRoutedHost(RoutedHost):
     """Host that can be configured with multiple IP addresses."""
@@ -98,6 +98,28 @@ class Dhcp6Server(RoutedHost):
         self.cmd('rm -rf %s' % self.pidFile)
         self.cmd('rm -rf  %s' % self.leasesFile)
         super(Dhcp6Server, self).terminate()
+
+class DhcpRelay(Router):
+    binFile = '/usr/sbin/dhcrelay'
+    pidFile = '/run/dhcp-relay.pid'
+    serverIp = None
+    gateway = None
+
+    def __init__(self, name, serverIp, gateway, *args, **kwargs):
+        super(DhcpRelay, self).__init__(name, **kwargs)
+        self.serverIp = serverIp
+        self.gateway = gateway
+
+    def config(self, **kwargs):
+        super(DhcpRelay, self).config(**kwargs)
+        ifacesStr = ' '.join(["-i " + ifaceName for ifaceName in self.interfaces.keys()])
+        self.cmd('route add default gw %s' % self.gateway)
+        self.cmd('%s -4 -a -pf %s %s %s' % (self.binFile, self.pidFile, ifacesStr, self.serverIp))
+
+    def terminate(self, **kwargs):
+        self.cmd('kill -9 `cat %s`', self.pidFile)
+        self.cmd('rm -rf %s' % self.pidFile)
+        super(DhcpRelay, self).terminate()
 
 class TaggedDhcpClient(Host):
     def __init__(self, name, vlan, *args, **kwargs):

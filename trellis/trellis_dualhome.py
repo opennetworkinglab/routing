@@ -94,8 +94,9 @@ class Trellis( Topo ):
         self.addLink(cs0, nat)
 
         # Internal Quagga bgp1
-        intfs = {'bgp1-eth0': {'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:02'},
-                 'bgp1-eth1': {'ipAddrs': ['172.16.0.2/12']}}
+        intfs = {'bgp1-eth0': [{'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:03', 'vlan': '110'},
+                               {'ipAddrs': ['10.0.7.2/24', '2000::702/120'], 'mac': '00:88:00:00:00:03', 'vlan': '170'}],
+                 'bgp1-eth1': {'ipAddrs': ['172.16.0.3/12']}}
         bgp1 = self.addHost('bgp1', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdbgp1.conf',
@@ -103,14 +104,28 @@ class Trellis( Topo ):
         self.addLink(bgp1, s205)
         self.addLink(bgp1, cs0)
 
+        # Internal Quagga bgp2
+        intfs = {'bgp2-eth0': [{'ipAddrs': ['10.0.5.2/24', '2000::502/120'], 'mac': '00:88:00:00:00:04', 'vlan': '150'},
+                               {'ipAddrs': ['10.0.6.2/24', '2000::602/120'], 'mac': '00:88:00:00:00:04', 'vlan': '160'}],
+                 'bgp2-eth1': {'ipAddrs': ['172.16.0.4/12']}}
+        bgp2 = self.addHost('bgp2', cls=BgpRouter,
+                            interfaces=intfs,
+                            quaggaConfFile='./bgpdbgp2.conf',
+                            zebraConfFile='./zebradbgp2.conf')
+        self.addLink(bgp2, s206)
+        self.addLink(bgp2, cs0)
+
         # External Quagga r1
         intfs = {'r1-eth0': {'ipAddrs': ['10.0.1.1/24', '2000::101/120'], 'mac': '00:88:00:00:00:01'},
-                 'r1-eth1': {'ipAddrs': ['10.0.99.1/16']},
-                 'r1-eth2': {'ipAddrs': ['2000::9901/120']}}
+                 'r1-eth1': {'ipAddrs': ['10.0.5.1/24', '2000::501/120'], 'mac': '00:88:00:00:00:11'},
+                 'r1-eth2': {'ipAddrs': ['10.0.99.1/16']},
+                 'r1-eth3': {'ipAddrs': ['2000::9901/120']},
+                 'r1-eth4': {'ipAddrs': ['2000::7701/120']}}
         r1 = self.addHost('r1', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdr1.conf')
         self.addLink(r1, s205)
+        self.addLink(r1, s206)
 
         # External IPv4 Host behind r1
         rh1 = self.addHost('rh1', cls=RoutedHost, ips=['10.0.99.2/24'], gateway='10.0.99.1')
@@ -120,6 +135,34 @@ class Trellis( Topo ):
         rh1v6 = self.addHost('rh1v6', cls=RoutedHost, ips=['2000::9902/120'], gateway='2000::9901')
         self.addLink(r1, rh1v6)
 
+        # Another external IPv6 Host behind r1
+        rh11v6 = self.addHost('rh11v6', cls=RoutedHost, ips=['2000::7702/120'], gateway='2000::7701')
+        self.addLink(r1, rh11v6)
+
+        # External Quagga r2
+        intfs = {'r2-eth0': {'ipAddrs': ['10.0.6.1/24', '2000::601/120'], 'mac': '00:88:00:00:00:02'},
+                 'r2-eth1': {'ipAddrs': ['10.0.7.1/24', '2000::701/120'], 'mac': '00:88:00:00:00:22'},
+                 'r2-eth2': {'ipAddrs': ['10.0.99.1/16']},
+                 'r2-eth3': {'ipAddrs': ['2000::9901/120']},
+                 'r2-eth4': {'ipAddrs': ['2000::8801/120']}}
+        r2 = self.addHost('r2', cls=BgpRouter,
+                            interfaces=intfs,
+                            quaggaConfFile='./bgpdr2.conf')
+        self.addLink(r2, s206)
+        self.addLink(r2, s205)
+
+        # External IPv4 Host behind r2
+        rh2 = self.addHost('rh2', cls=RoutedHost, ips=['10.0.99.2/24'], gateway='10.0.99.1')
+        self.addLink(r2, rh2)
+
+        # External IPv6 Host behind r2
+        rh2v6 = self.addHost('rh126', cls=RoutedHost, ips=['2000::9902/120'], gateway='2000::9901')
+        self.addLink(r2, rh2v6)
+
+        # Another external IPv6 Host behind r1
+        rh22v6 = self.addHost('rh22v6', cls=RoutedHost, ips=['2000::8802/120'], gateway='2000::8801')
+        self.addLink(r2, rh22v6)
+
 topos = { 'trellis' : Trellis }
 
 if __name__ == "__main__":
@@ -127,9 +170,9 @@ if __name__ == "__main__":
     topo = Trellis()
 
     net = Mininet(topo=topo, controller=None)
-    net.addController(RemoteController('c0', ip='192.168.56.11'))
-    net.addController(RemoteController('c1', ip='192.168.56.12'))
-    net.addController(RemoteController('c2', ip='192.168.56.13'))
+    #net.addController(RemoteController('c0', ip='192.168.56.11'))
+    #net.addController(RemoteController('c1', ip='192.168.56.12'))
+    #net.addController(RemoteController('c2', ip='192.168.56.13'))
 
     net.start()
     CLI(net)

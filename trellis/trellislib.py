@@ -58,9 +58,7 @@ class Dhcp6Client(Host):
 
     def config(self, **kwargs):
         super(Dhcp6Client, self).config(**kwargs)
-        self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        linkLocalAddr = mac_to_ipv6_linklocal(kwargs['mac'])
-        self.cmd('ip -6 addr add dev %s scope link %s' % (self.defaultIntf(), linkLocalAddr))
+        self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
         self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):

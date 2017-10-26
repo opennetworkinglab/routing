@@ -4,6 +4,7 @@ Trellis Leaf-Spine Fabric
 # Introduction
 This folder contains Mininet scripts and corresponding config files that
 can be used to emulate Trellis leaf-spine fabric, vRouter and DHCP relay.
+Current Mininet setup only works with ONOS 1.11 and above. We recommend you use the tip of 1.11 branch.
 
 # Download
 `git clone https://gerrit.onosproject.org/routing`
@@ -32,11 +33,8 @@ Please run `sudo ovs-vsctl --version` and make sure the OVS version is above 2.5
 Trellis needs a special FPM patch for Quagga.
 
 ```
-wget http://download.savannah.gnu.org/releases/quagga/quagga-0.99.23.tar.gz
-wget https://wiki.opencord.org/download/attachments/1278529/fpm-remote.diff
-tar -xzvf quagga-0.99.23.tar.gz
-cd quagga-0.99.23
-patch -p1 < ../fpm-remote.diff
+git clone -b onos-1.11 https://gerrit.opencord.org/quagga
+cd quagga
 ./configure --enable-fpm --sbindir=/usr/lib/quagga
 make
 sudo make install
@@ -47,7 +45,7 @@ cd ..
 Learn about how to setup ONOS at: https://wiki.onosproject.org/.
 After installation, the following ONOS apps need to be activated.
 
-`export ONOS_APPS=drivers,openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider`
+`export ONOS_APPS=drivers,openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider,routeradvertisement`
 
 ## ONOS - Network Config
 `onos-netcfg <onos-ip> routing/trellis/trellis.json`

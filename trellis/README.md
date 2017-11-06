@@ -15,7 +15,8 @@ Current Mininet setup only works with ONOS 1.11 and above. We recommend you use 
 Some dependencies need to be installed for a fresh Ubuntu.
 ```
 sudo apt-get update
-sudo apt-get install gawk texinfo python-pip build-essential iptables
+sudo apt-get install -y gawk texinfo python-pip build-essential iptables automake autoconf libtool
+sudo pip install -U pip
 sudo pip install ipaddress
 ```
 
@@ -35,6 +36,7 @@ Trellis needs a special FPM patch for Quagga.
 ```
 git clone -b onos-1.11 https://gerrit.opencord.org/quagga
 cd quagga
+./bootstrap.sh
 ./configure --enable-fpm --sbindir=/usr/lib/quagga
 make
 sudo make install
@@ -63,8 +65,17 @@ net.addController(RemoteController('c2', ip='192.168.56.13'))
 ```
 
 In `routing/trellis/zebradbgp1.conf`
+Note: This ONOS IP need to be reachable from Mininet emulated Quagga host.
+127.0.0.1 is invalid.
 ```
 fpm connection ip 192.168.56.11 port 2620
+```
+
+## Disable AppArmor
+The apparmor will set dhcpd in enforce mode. We will need to disable the profile.
+```
+ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
+apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
 ```
 
 ## Start Mininet Emulation

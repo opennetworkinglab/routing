@@ -33,6 +33,10 @@ Please run `sudo ovs-vsctl --version` and make sure the OVS version is above 2.5
 ## Quagga
 Trellis needs a special FPM patch for Quagga.
 
+In order to start the quagga related daemons, you should create a user `quagga`
+and set the correct read/write permission to local state directory(`--localstatedir`)
+and configuration directory(`--sysconfdir`).
+
 ```
 git clone -b onos-1.11 https://gerrit.opencord.org/quagga
 cd quagga

@@ -6,13 +6,14 @@ from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
-from mininet.node import RemoteController, OVSBridge, Host
+from mininet.node import RemoteController, OVSBridge, Host, OVSSwitch
 from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost
 from trellislib import DhcpClient, DhcpServer
 from trellislib import TaggedDhcpClient, TaggedDhcpServer
+from functools import partial
 
 class Trellis( Topo ):
     "Trellis basic topology"
@@ -105,7 +106,8 @@ if __name__ == "__main__":
     setLogLevel('debug')
     topo = Trellis()
 
-    net = Mininet(topo=topo, controller=None)
+    switch = partial(OVSSwitch, protocols='OpenFlow13')
+    net = Mininet(topo=topo, controller=None, switch=switch)
     net.addController(RemoteController('c0', ip='192.168.56.11'))
     net.addController(RemoteController('c1', ip='192.168.56.12'))
     net.addController(RemoteController('c2', ip='192.168.56.13'))

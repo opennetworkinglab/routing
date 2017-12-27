@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/xenial64"
+  config.vm.box_version = "20171221.0.0"
+  config.vm.hostname = 'trellis-example'
+
+  config.vm.provision "shell", privileged: false, inline: <<-SHELL
+    set -e -x -u
+    sudo apt-get update
+    sudo apt-get install -y gawk texinfo python-pip build-essential iptables automake autoconf libtool mininet isc-dhcp-server
+    sudo pip install -U pip
+    sudo pip install ipaddress
+    git clone -b onos-1.11 https://gerrit.opencord.org/quagga
+    cd quagga
+    ./bootstrap.sh
+    ./configure --enable-fpm --sbindir=/usr/lib/quagga enable_user=root enable_group=root
+    make
+    sudo make install
+    cd ..
+
+    sudo /etc/init.d/apparmor stop
+    sudo ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
+    sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
+    sudo sed -i '30i  /var/lib/dhcp{,3}/dhcpclient* lrw,' /etc/apparmor.d/sbin.dhclient
+    sudo /etc/init.d/apparmor start
+
+    git clone https://gerrit.onosproject.org/routing
+
+    sudo ldconfig
+    SHELL
+
+  config.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--cpus", 2]
+      # enable this when you want to have more memory
+      # v.customize ["modifyvm", :id, "--memory", 4096]
+      v.customize ['modifyvm', :id, '--nicpromisc1', 'allow-all']
+  end
+end

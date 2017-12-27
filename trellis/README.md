@@ -9,7 +9,7 @@ Current Mininet setup only works with ONOS 1.11 and above. We recommend you use 
 # Download
 `git clone https://gerrit.onosproject.org/routing`
 
-# Installation
+# Manual Installation
 
 ## Ubuntu 16.04 LTS
 Some dependencies need to be installed for a fresh Ubuntu.
@@ -75,11 +75,19 @@ Note: This ONOS IP need to be reachable from Mininet emulated Quagga host.
 fpm connection ip 192.168.56.11 port 2620
 ```
 
-## Disable AppArmor
+## Disable/Modify AppArmor
 The apparmor will set dhcpd in enforce mode. We will need to disable the profile.
 ```
-ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
-apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
+sudo ln -s /etc/apparmor.d/usr.sbin.dhcpd /etc/apparmor.d/disable/
+sudo apparmor_parser -R /etc/apparmor.d/usr.sbin.dhcpd
+```
+
+The apparmor rules of dhclient will restrict the dhclient to write files to directory /var/lib/.
+We need to modify the rules of dhclient profile and restart the apparmor.
+```
+sudo /etc/init.d/apparmor stop
+sudo sed -i '30i  /var/lib/dhcp{,3}/dhcpclient* lrw,' /etc/apparmor.d/sbin.dhclient
+sudo /etc/init.d/apparmor start
 ```
 
 ## Start Mininet Emulation
@@ -92,6 +100,36 @@ sudo ./trellis.py
 In Mininet, run
 - `h1 ping 10.0.99.2` to check IPv4 connectivity
 - `h1v6 ping6 2000::9902` to check IPv6 connectivity
+
+# Vagrant
+We also provide a mininet VM image supported by Vagrant file.
+In that VM environment, you only need to modify the IP address of ONON controller for
+`trellis.py` and `zebradbgp*.conf`.
+
+In order to use the Vagrant, make sure you have already installed the Vagrant in your environment.
+
+## Start the VM
+```
+vagrant up
+```
+
+## Start the ONOS
+Start the ONON controller and set the config via `onos-netcfg` on the other host.
+
+## Operate the VM
+Type the following command to ssh into the VM environment.
+```
+vagrant ssh
+```
+
+Now. Follow above instructions to modify the IP address of `trellis.py` and `zebradbgp*.conf.
+and then start the mininet to test
+```
+cd routing/trellis
+vim trellis.py
+vim zebradbgp1.conf
+sudo ./trellis.py
+```
 
 # Troubleshooting
 - Services in the emulated hosts may still be alive if Mininet is not terminated properly.

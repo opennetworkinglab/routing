@@ -1,0 +1,19 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "vm1" do |vm1|
+
+    vm1.vm.box = "ubuntu/xenial64"
+    vm1.vm.hostname = 'vm1'
+    vm1.vm.box_url = "ubuntu/xenial64"
+
+    vm1.vm.network :private_network, ip: "192.168.56.11"
+
+    vm1.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      v.customize ["modifyvm", :id, "--memory", 2048]
+      v.customize ["modifyvm", :id, "--name", "vm1"]
+  end  
+  # config.vm.provision "shell", inline: <<-SHELL
+    config.vm.provision "shell", :path => "bootstrap.sh"
+  end
+
+end

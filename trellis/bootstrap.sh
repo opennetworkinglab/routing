@@ -50,7 +50,7 @@
 	# Running ONOS as a service
 	sudo cp /opt/onos/init/onos.initd /etc/init.d/onos
 	sudo cp /opt/onos/init/onos.service /etc/systemd/system/
-	sed -i 's/ONOS_APPS=${ONOS_APPS:-}/ONOS_APPS=drivers,openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider,routeradvertisement/g' /opt/onos/bin/onos-service
+	sed -i 's/ONOS_APPS=${ONOS_APPS:-}/ONOS_APPS=openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider,routeradvertisement/g' /opt/onos/bin/onos-service
 	sudo service onos start
 	sleep 20
 	echo -e "20 sec \a \n"

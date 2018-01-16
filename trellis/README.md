@@ -103,7 +103,7 @@ In Mininet, run
 
 # Vagrant
 We also provide a mininet VM image supported by Vagrant file.
-In that VM environment, you only need to modify the IP address of ONON controller for
+In that VM environment, you only need to modify the IP address of ONOS controller for
 `trellis.py` and `zebradbgp*.conf`.
 
 In order to use the Vagrant, make sure you have already installed the Vagrant in your environment.
@@ -114,7 +114,7 @@ vagrant up
 ```
 
 ## Start the ONOS
-Start the ONON controller and set the config via `onos-netcfg` on the other host.
+Start the ONOS controller and set the config via `onos-netcfg` on the other host.
 
 ## Operate the VM
 Type the following command to ssh into the VM environment.

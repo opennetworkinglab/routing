@@ -3,3 +3,8 @@
 *.pyc
 *.project
 *.pydevproject
+
+# vagrant
+trellis/.vagrant/
+# virtualbox
+trellis/*.log

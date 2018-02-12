@@ -29,12 +29,12 @@ class Trellis( Topo ):
         Topo.__init__( self, *args, **kwargs )
 
         # Spines
-        s226 = self.addSwitch('s226', cls=ONOSBmv2Switch, deviceId='226', grpcPort=55226, pipeconfId=PIPECONF_ID, netcfgDelay=0.5)
-        s227 = self.addSwitch('s227', cls=ONOSBmv2Switch, deviceId='227', grpcPort=55227, pipeconfId=PIPECONF_ID, netcfgDelay=0.5)
+        s226 = self.addSwitch('s226', cls=ONOSBmv2Switch, deviceId='226', grpcPort=55226, pipeconfId=PIPECONF_ID, injectPorts=True)
+        s227 = self.addSwitch('s227', cls=ONOSBmv2Switch, deviceId='227', grpcPort=55227, pipeconfId=PIPECONF_ID, injectPorts=True)
 
         # Leaves
-        s204 = self.addSwitch('s204', cls=ONOSBmv2Switch, deviceId='204', grpcPort=55204, pipeconfId=PIPECONF_ID, netcfgDelay=0.5)
-        s205 = self.addSwitch('s205', cls=ONOSBmv2Switch, deviceId='205', grpcPort=55205, pipeconfId=PIPECONF_ID, netcfgDelay=0.5)
+        s204 = self.addSwitch('s204', cls=ONOSBmv2Switch, deviceId='204', grpcPort=55204, pipeconfId=PIPECONF_ID, injectPorts=True)
+        s205 = self.addSwitch('s205', cls=ONOSBmv2Switch, deviceId='205', grpcPort=55205, pipeconfId=PIPECONF_ID, injectPorts=True)
 
         # Switch Links
         self.addLink(s226, s204)
@@ -45,10 +45,10 @@ class Trellis( Topo ):
         # NOTE avoid using 10.0.1.0/24 which is the default subnet of quaggas
         # NOTE avoid using 00:00:00:00:00:xx which is the default mac of host behind upstream router
         # IPv4 Hosts
-        h1 = self.addHost('h1', cls=RoutedHost, mac='00:aa:00:00:00:01', ips=['10.0.10.1/24'], gateway='10.0.10.254')
-        h2 = self.addHost('h2', cls=RoutedHost, mac='00:aa:00:00:00:02', ips=['10.0.10.2/24'], gateway='10.0.10.254')
-        h3 = self.addHost('h3', cls=RoutedHost, mac='00:aa:00:00:00:03', ips=['10.0.20.1/24'], gateway='10.0.20.254')
-        h4 = self.addHost('h4', cls=RoutedHost, mac='00:aa:00:00:00:04', ips=['10.0.20.2/24'], gateway='10.0.20.254')
+        h1 = self.addHost('h1', cls=RoutedHost, mac='00:aa:00:00:00:01', ips=['10.0.2.1/24'], gateway='10.0.2.254')
+        h2 = self.addHost('h2', cls=RoutedHost, mac='00:aa:00:00:00:02', ips=['10.0.2.2/24'], gateway='10.0.2.254')
+        h3 = self.addHost('h3', cls=RoutedHost, mac='00:aa:00:00:00:03', ips=['10.0.3.1/24'], gateway='10.0.3.254')
+        h4 = self.addHost('h4', cls=RoutedHost, mac='00:aa:00:00:00:04', ips=['10.0.3.2/24'], gateway='10.0.3.254')
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)

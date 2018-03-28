@@ -6,8 +6,10 @@ Libraries for Trellis hosts.
 
 import sys
 sys.path.append('..')
-from mininet.node import Host
+from mininet.node import Host, RemoteController
 from routinglib import RoutedHost, RoutedHost6, Router
+import argparse
+from mininet.net import Mininet
 
 class TaggedRoutedHost(RoutedHost):
     """Host that can be configured with multiple IP addresses."""
@@ -204,3 +206,52 @@ def mac_to_ipv6_linklocal(mac):
     low2 = mac_value & 0xffff
 
     return 'fe80::{:04x}:{:02x}ff:fe{:02x}:{:04x}'.format(high2, high1, low1, low2)
+
+# Parses Trellis parameters
+def parse_trellis_args():
+    parser = argparse.ArgumentParser(description="Trellis Arguments")
+    parser.add_argument("-c", "--controllers", help = "Comma Separated List of ONOS controllers",
+                        required = True, default = "")
+    return parser.parse_args()
+
+# Gets a mininet instance
+def get_mininet(arguments, topo, switch):
+    net = Mininet(topo=topo, controller=None, switch=switch)
+
+    if arguments.controllers:
+        controllers = arguments.controllers.split(',')
+        controller_number = 0
+        for controller in controllers:
+            net.addController(RemoteController('c' + str(controller_number), ip=controller))
+            controller_number += 1
+    return net
+
+# Generates the Zebra config files
+def set_up_zebra_config(controllers_string):
+    zebra_config = "log file /var/log/quagga/zebradbgp{}.log\n" \
+                   "hostname zebra-bgp{}\n" \
+                   "password quagga\n" \
+                    "!\n" \
+                    "! Default route via virtual management switch\n" \
+                    "!\n" \
+                    "ip route 0.0.0.0/0 172.16.0.1\n" \
+                    "!\n" \
+                    "fpm connection ip {} port 2620\n"
+    controllers = controllers_string.split(',')
+
+    controller1 = controllers[0]
+    if (len(controllers) > 1):
+        controller2 = controllers[1]
+    else:
+        controller2 = controller1
+
+
+    zebra1 = zebra_config.format("1", "1", controller1)
+    zebra2 = zebra_config.format("2", "2", controller2)
+
+    with open("zebradbgp1.conf", "w") as config_file_1:
+        config_file_1.write(zebra1)
+
+    with open("zebradbgp2.conf", "w") as config_file_2:
+        config_file_2.write(zebra2)
+

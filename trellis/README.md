@@ -56,25 +56,6 @@ After installation, the following ONOS apps need to be activated.
 ## ONOS - Network Config
 `onos-netcfg <onos-ip> routing/trellis/trellis.json`
 
-
-## Update Controller IP
-The location of ONOS controller needs to be updated in several places, including
-Mininet script and zebra config.
-
-In `routing/trellis/trellis.py`
-```
-net.addController(RemoteController('c0', ip='192.168.56.11'))
-net.addController(RemoteController('c1', ip='192.168.56.12'))
-net.addController(RemoteController('c2', ip='192.168.56.13'))
-```
-
-In `routing/trellis/zebradbgp1.conf`
-Note: This ONOS IP need to be reachable from Mininet emulated Quagga host.
-127.0.0.1 is invalid.
-```
-fpm connection ip 192.168.56.11 port 2620
-```
-
 ## Disable/Modify AppArmor
 The apparmor will set dhcpd in enforce mode. We will need to disable the profile.
 ```
@@ -93,7 +74,7 @@ sudo /etc/init.d/apparmor start
 ## Start Mininet Emulation
 ```
 cd routing/trellis
-sudo ./trellis.py
+sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1, ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
 ```
 
 ## Verify Network Connectivity
@@ -122,13 +103,10 @@ Type the following command to ssh into the VM environment.
 vagrant ssh
 ```
 
-Now. Follow above instructions to modify the IP address of `trellis.py` and `zebradbgp*.conf.
-and then start the mininet to test
+Now start mininet to test
 ```
 cd routing/trellis
-vim trellis.py
-vim zebradbgp1.conf
-sudo ./trellis.py
+sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1, ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
 ```
 
 # Troubleshooting

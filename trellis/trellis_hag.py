@@ -3,7 +3,6 @@
 import sys
 sys.path.append('..')
 from mininet.topo import Topo
-from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController, OVSBridge, Host, OVSSwitch
@@ -14,10 +13,12 @@ from routinglib import BgpRouter
 from routinglib import RoutedHost, RoutedHost6
 from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server
 from trellislib import DualHomedDhcpClient
+from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
 
+
 class Trellis( Topo ):
-    "Trellis basic topology"
+    """Trellis HAG topology"""
 
     def __init__( self, *args, **kwargs ):
         Topo.__init__( self, *args, **kwargs )
@@ -210,28 +211,27 @@ class Trellis( Topo ):
         rpd6 = self.addHost('rpd6', cls=DhcpClient, mac='00:dd:00:00:00:02')
         self.addLink(rpd5, s207)
         self.addLink(rpd6, s208)
-        
+
         # IPv6 Hosts - RPDs
         rpd5v6 = self.addHost('rpd5v6', cls=Dhcp6Client, mac='00:ee:00:00:00:01')
         rpd6v6 = self.addHost('rpd6v6', cls=Dhcp6Client, mac='00:ee:00:00:00:02')
         self.addLink(rpd5v6, s207)
         self.addLink(rpd6v6, s208)
-        
 
 
-        
+
+
 
 topos = { 'trellis' : Trellis }
 
 if __name__ == "__main__":
     setLogLevel('debug')
-    topo = Trellis()
 
+    topo = Trellis()
     switch = partial(OVSSwitch, protocols='OpenFlow13')
-    net = Mininet(topo=topo, controller=None, switch=switch)
-    #net.addController(RemoteController('c0', ip='10.192.19.161'))
-    #net.addController(RemoteController('c1', ip='10.192.19.162'))
-    #net.addController(RemoteController('c2', ip='10.192.19.163'))
+    arguments = parse_trellis_args()
+    set_up_zebra_config(arguments.controllers)
+    net = get_mininet(arguments, topo, switch)
 
     net.start()
     CLI(net)

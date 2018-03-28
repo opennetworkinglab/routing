@@ -13,6 +13,7 @@ from routinglib import BgpRouter
 from routinglib import RoutedHost
 from trellislib import DhcpClient, DhcpServer
 from trellislib import TaggedDhcpClient, TaggedDhcpServer
+from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
 
 class Trellis( Topo ):
@@ -105,12 +106,10 @@ topos = { 'trellis' : Trellis }
 if __name__ == "__main__":
     setLogLevel('debug')
     topo = Trellis()
-
     switch = partial(OVSSwitch, protocols='OpenFlow13')
-    net = Mininet(topo=topo, controller=None, switch=switch)
-    net.addController(RemoteController('c0', ip='192.168.56.11'))
-    net.addController(RemoteController('c1', ip='192.168.56.12'))
-    net.addController(RemoteController('c2', ip='192.168.56.13'))
+    arguments = parse_trellis_args()
+    set_up_zebra_config(arguments.controllers)
+    net = get_mininet(arguments, topo, switch)
 
     net.start()
     CLI(net)

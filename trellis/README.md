@@ -74,7 +74,7 @@ sudo /etc/init.d/apparmor start
 ## Start Mininet Emulation
 ```
 cd routing/trellis
-sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1, ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
+sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1,ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
 ```
 
 ## Verify Network Connectivity
@@ -106,7 +106,7 @@ vagrant ssh
 Now start mininet to test
 ```
 cd routing/trellis
-sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1, ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
+sudo ./trellis.py --controllers ONOS_CONTROLLER_IP1,ONOS_CONTROLLER_IP2,...,ONOS_CONTROLLER_IPN
 ```
 
 # Troubleshooting

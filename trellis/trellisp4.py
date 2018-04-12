@@ -29,12 +29,12 @@ class Trellis( Topo ):
         Topo.__init__( self, *args, **kwargs )
 
         # Spines
-        s226 = self.addSwitch('s226', cls=ONOSBmv2Switch, deviceId='226', grpcPort=55226, pipeconfId=PIPECONF_ID, injectPorts=True)
-        s227 = self.addSwitch('s227', cls=ONOSBmv2Switch, deviceId='227', grpcPort=55227, pipeconfId=PIPECONF_ID, injectPorts=True)
+        s226 = self.addSwitch('s226', cls=ONOSBmv2Switch, grpcport=55226, pipeconf=PIPECONF_ID, portcfg=True)
+        s227 = self.addSwitch('s227', cls=ONOSBmv2Switch, grpcport=55227, pipeconf=PIPECONF_ID, portcfg=True)
 
         # Leaves
-        s204 = self.addSwitch('s204', cls=ONOSBmv2Switch, deviceId='204', grpcPort=55204, pipeconfId=PIPECONF_ID, injectPorts=True)
-        s205 = self.addSwitch('s205', cls=ONOSBmv2Switch, deviceId='205', grpcPort=55205, pipeconfId=PIPECONF_ID, injectPorts=True)
+        s204 = self.addSwitch('s204', cls=ONOSBmv2Switch, grpcport=55204, pipeconf=PIPECONF_ID, portcfg=True)
+        s205 = self.addSwitch('s205', cls=ONOSBmv2Switch, grpcport=55205, pipeconf=PIPECONF_ID, portcfg=True)
 
         # Switch Links
         self.addLink(s226, s204)

@@ -51,7 +51,7 @@ cd ..
 Learn about how to setup ONOS at: https://wiki.onosproject.org/.
 After installation, the following ONOS apps need to be activated.
 
-`export ONOS_APPS=drivers,openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider,routeradvertisement`
+`export ONOS_APPS=drivers,openflow,segmentrouting,fpm,dhcprelay,netcfghostprovider,routeradvertisement,mcast`
 
 ## ONOS - Network Config
 `onos-netcfg <onos-ip> routing/trellis/trellis.json`

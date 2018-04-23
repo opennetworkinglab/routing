@@ -11,8 +11,9 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost, RoutedHost6
-from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server
+from trellislib import DhcpClient, Dhcp6Client, Dhcp4and6Client, DhcpRelay, DhcpServer, Dhcp6Server
 from trellislib import DualHomedDhcpClient
+from trellislib import DualHomedDhcp4and6Client
 from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
 
@@ -62,23 +63,27 @@ class Trellis( Topo ):
         h2 = self.addHost('h2', cls=DhcpClient, mac='00:aa:00:00:00:02')
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
         h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')
+        h5 = self.addHost('h5', cls=DhcpClient, mac='00:aa:00:00:00:05')
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)
         self.addLink(h4, s205)
+        self.addLink(h5, s203)
 
         # IPv6 Hosts
         h1v6 = self.addHost('h1v6', cls=Dhcp6Client, mac='00:bb:00:00:00:01')
         h2v6 = self.addHost('h2v6', cls=Dhcp6Client, mac='00:bb:00:00:00:02')
         h3v6 = self.addHost('h3v6', cls=Dhcp6Client, mac='00:bb:00:00:00:03')
         h4v6 = self.addHost('h4v6', cls=Dhcp6Client, mac='00:bb:00:00:00:04')
+        h5v6 = self.addHost('h5v6', cls=Dhcp6Client, mac='00:bb:00:00:00:05')
         self.addLink(h1v6, s204)
         self.addLink(h2v6, s204)
         self.addLink(h3v6, s205)
         self.addLink(h4v6, s205)
+        self.addLink(h5v6, s203)
 
-        # Dual-homed IPv4 Host 203-204
-        dh1 = self.addHost('dh1', cls=DualHomedDhcpClient, mac='00:cc:00:00:00:01')
+        # Dual-homed IPv4 and IPv6 Host on 203-204
+        dh1 = self.addHost('dh1', cls=DualHomedDhcp4and6Client, mac='00:cc:00:00:00:01')
         self.addLink(dh1, s204)
         self.addLink(dh1, s203)
 

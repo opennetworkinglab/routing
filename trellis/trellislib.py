@@ -68,6 +68,30 @@ class Dhcp6Client(Host):
         self.cmd('rm -rf %s' % self.pidFile)
         super(Dhcp6Client, self).terminate()
 
+# Client that has on the same interface (eth0) both IPv4 and IPv6 addresses
+class Dhcp4and6Client(Host):
+    def __init__(self, name, *args, **kwargs):
+        super(Dhcp4and6Client, self).__init__(name, **kwargs)
+        self.pidFile4 = '/run/dhclient-%s-4.pid' % self.name
+        self.pidFile6 = '/run/dhclient-%s-6.pid' % self.name
+        self.leaseFile4 = '/var/lib/dhcp/dhcpclient-%s.lease' % (self.name, )
+        self.leaseFile6 = '/var/lib/dhcp/dhcpclient6-%s.lease' % (self.name, )
+
+    def config(self, **kwargs):
+        super(Dhcp4and6Client, self).config(**kwargs)
+        self.cmd('ip addr flush dev %s' % self.defaultIntf())
+        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile4, self.leaseFile4, self.defaultIntf()))
+
+        self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
+        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile6, self.leaseFile6, self.defaultIntf()))
+
+    def terminate(self, **kwargs):
+        self.cmd('kill -9 `cat %s`' % self.pidFile4)
+        self.cmd('rm -rf %s' % self.pidFile4)
+        self.cmd('kill -9 `cat %s`' % self.pidFile6)
+        self.cmd('rm -rf %s' % self.pidFile6)
+        super(Dhcp4and6Client, self).terminate()
+
 class DhcpServer(RoutedHost):
     binFile = '/usr/sbin/dhcpd'
     pidFile = '/run/dhcp-server-dhcpd.pid'
@@ -188,6 +212,42 @@ class DualHomedDhcpClient(Host):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
         super(DualHomedDhcpClient, self).terminate()
+
+# Dual-homed Client that has both IPv4 and IPv6 addresses
+class DualHomedDhcp4and6Client(Host):
+    def __init__(self, name, *args, **kwargs):
+        super(DualHomedDhcp4and6Client, self).__init__(name, **kwargs)
+        self.pidFile4 = '/run/dhclient-%s-4.pid' % self.name
+        self.pidFile6 = '/run/dhclient-%s-6.pid' % self.name
+        self.bond0 = None
+
+    def config(self, **kwargs):
+        super(DualHomedDhcp4and6Client, self).config(**kwargs)
+        intf0 = self.intfs[0].name
+        intf1 = self.intfs[1].name
+        self.bond0 = "%s-bond0" % self.name
+        self.cmd('modprobe bonding')
+        self.cmd('ip link add %s type bond' % self.bond0)
+        self.cmd('ip link set %s down' % intf0)
+        self.cmd('ip link set %s down' % intf1)
+        self.cmd('ip link set %s master %s' % (intf0, self.bond0))
+        self.cmd('ip link set %s master %s' % (intf1, self.bond0))
+        self.cmd('ip -4 addr flush dev %s' % intf0)
+        self.cmd('ip -4 addr flush dev %s' % intf1)
+        self.cmd('ip addr flush dev %s' % intf0)
+        self.cmd('ip addr flush dev %s' % intf1)
+        self.cmd('ip link set %s up' % self.bond0)
+        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile4, self.bond0))
+        self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile6, self.bond0))
+
+    def terminate(self, **kwargs):
+        self.cmd('ip link set %s down' % self.bond0)
+        self.cmd('ip link delete %s' % self.bond0)
+        self.cmd('kill -9 `cat %s`' % self.pidFile4)
+        self.cmd('kill -9 `cat %s`' % self.pidFile6)
+        self.cmd('rm -rf %s' % self.pidFile4)
+        self.cmd('rm -rf %s' % self.pidFile6)
+        super(DualHomedDhcp4and6Client, self).terminate()
 
 # Utility for IPv6
 def mac_to_ipv6_linklocal(mac):

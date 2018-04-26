@@ -5,6 +5,8 @@ Libraries for Trellis hosts.
 """
 
 import sys
+import time
+
 sys.path.append('..')
 from mininet.node import Host, RemoteController
 from routinglib import RoutedHost, RoutedHost6, Router
@@ -61,6 +63,7 @@ class Dhcp6Client(Host):
     def config(self, **kwargs):
         super(Dhcp6Client, self).config(**kwargs)
         self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
+        time.sleep(3)
         self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
     def terminate(self, **kwargs):
@@ -83,6 +86,7 @@ class Dhcp4and6Client(Host):
         self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile4, self.leaseFile4, self.defaultIntf()))
 
         self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
+        time.sleep(3)
         self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile6, self.leaseFile6, self.defaultIntf()))
 
     def terminate(self, **kwargs):
@@ -236,6 +240,7 @@ class DualHomedDhcp4and6Client(Host):
         self.cmd('ip -4 addr flush dev %s' % intf1)
         self.cmd('ip addr flush dev %s' % intf0)
         self.cmd('ip addr flush dev %s' % intf1)
+        time.sleep(3)
         self.cmd('ip link set %s up' % self.bond0)
         self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile4, self.bond0))
         self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile6, self.bond0))

@@ -1,6 +1,6 @@
 {
     "ports" : {
-        "device:bmv2:204/3" : {
+        "device:bmv2:s204/3" : {
             "interfaces" : [
                 {
                     "name": "h1",
@@ -9,7 +9,7 @@
                 }
             ]
         },
-        "device:bmv2:204/4" : {
+        "device:bmv2:s204/4" : {
             "interfaces" : [
                 {
                     "name": "h2",
@@ -18,7 +18,7 @@
                 }
             ]
         },
-        "device:bmv2:205/3" : {
+        "device:bmv2:s205/3" : {
             "interfaces" : [
                 {
                     "name": "h3",
@@ -27,7 +27,7 @@
                 }
             ]
         },
-        "device:bmv2:205/4" : {
+        "device:bmv2:s205/4" : {
             "interfaces" : [
                 {
                     "name": "h4",
@@ -38,7 +38,7 @@
         }
     },
     "devices" : {
-        "device:bmv2:204" : {
+        "device:bmv2:s204" : {
             "segmentrouting" : {
                 "name" : "s204",
                 "ipv4NodeSid" : 204,
@@ -50,7 +50,7 @@
                 "adjacencySids" : []
             }
         },
-        "device:bmv2:205" : {
+        "device:bmv2:s205" : {
             "segmentrouting" : {
                 "name" : "s205",
                 "ipv4NodeSid" : 205,
@@ -62,7 +62,7 @@
                 "adjacencySids" : []
             }
         },
-        "device:bmv2:226" : {
+        "device:bmv2:s226" : {
             "segmentrouting" : {
                 "name" : "s226",
                 "ipv4NodeSid" : 226,
@@ -74,7 +74,7 @@
                 "adjacencySids" : []
             }
         },
-        "device:bmv2:227" : {
+        "device:bmv2:s227" : {
             "segmentrouting" : {
                 "name" : "s227",
                 "ipv4NodeSid" : 227,

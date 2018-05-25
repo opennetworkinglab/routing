@@ -14,7 +14,7 @@
                 {
                     "name": "h2",
                     "ips" : [ "10.0.2.254/24" ],
-                    "vlan-untagged": 10
+                    "vlan-tagged": [10]
                 }
             ]
         },
@@ -32,7 +32,7 @@
                 {
                     "name": "h4",
                     "ips" : [ "10.0.3.254/24" ],
-                    "vlan-untagged": 20
+                    "vlan-tagged": [20]
                 }
             ]
         }

@@ -18,6 +18,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import Host, RemoteController
 from routinglib import RoutedHost
+from trellislib import TaggedRoutedHost
 from bmv2 import ONOSBmv2Switch
 
 PIPECONF_ID = 'org.onosproject.pipelines.fabric'
@@ -46,9 +47,9 @@ class Trellis( Topo ):
         # NOTE avoid using 00:00:00:00:00:xx which is the default mac of host behind upstream router
         # IPv4 Hosts
         h1 = self.addHost('h1', cls=RoutedHost, mac='00:aa:00:00:00:01', ips=['10.0.2.1/24'], gateway='10.0.2.254')
-        h2 = self.addHost('h2', cls=RoutedHost, mac='00:aa:00:00:00:02', ips=['10.0.2.2/24'], gateway='10.0.2.254')
+        h2 = self.addHost('h2', cls=TaggedRoutedHost, mac='00:aa:00:00:00:02', ips=['10.0.2.2/24'], gateway='10.0.2.254', vlan=10)
         h3 = self.addHost('h3', cls=RoutedHost, mac='00:aa:00:00:00:03', ips=['10.0.3.1/24'], gateway='10.0.3.254')
-        h4 = self.addHost('h4', cls=RoutedHost, mac='00:aa:00:00:00:04', ips=['10.0.3.2/24'], gateway='10.0.3.254')
+        h4 = self.addHost('h4', cls=TaggedRoutedHost, mac='00:aa:00:00:00:04', ips=['10.0.3.2/24'], gateway='10.0.3.254', vlan=20)
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)

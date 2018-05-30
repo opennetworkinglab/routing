@@ -5,13 +5,6 @@ import sys
 import argparse
 sys.path.append('..')
 
-if 'ONOS_ROOT' not in os.environ:
-    print "Environment var $ONOS_ROOT not set"
-    exit()
-else:
-    ONOS_ROOT = os.environ["ONOS_ROOT"]
-    sys.path.append(ONOS_ROOT + "/tools/dev/mininet")
-
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.cli import CLI

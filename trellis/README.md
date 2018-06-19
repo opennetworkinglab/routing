@@ -4,7 +4,7 @@ Trellis Leaf-Spine Fabric
 # Introduction
 This folder contains Mininet scripts and corresponding config files that
 can be used to emulate Trellis leaf-spine fabric, vRouter and DHCP relay.
-Current Mininet setup only works with ONOS 1.11 and above. We recommend you use the tip of 1.11 branch.
+Current Mininet setup only works with ONOS 1.12 and above. We recommend you use the tip of 1.12 branch.
 
 # Download
 `git clone https://gerrit.onosproject.org/routing`

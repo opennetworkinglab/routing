@@ -38,6 +38,37 @@ class TaggedRoutedHost(RoutedHost):
         self.cmd('ip link remove link %s' % self.vlanIntf)
         super(TaggedRoutedHost, self).terminate()
 
+class DoubleTaggedRoutedHost(RoutedHost):
+    def __init__(self, name, ips, outerVlan, innerVlan, gateway, *args, **kwargs):
+        super(RoutedHost, self).__init__(name, *args, **kwargs)
+        self.ips = ips
+        self.gateway = gateway
+        self.innerVlan = innerVlan
+        self.outerVlan = outerVlan
+        self.innerVlanIntf = None
+        self.outerVlanIntf = None
+
+    def config(self, **kwargs):
+        Host.config(self, **kwargs)
+        self.outerVlanIntf = "%s.%s" % (self.defaultIntf(), self.outerVlan)
+        self.outerVlanIntf = self.outerVlanIntf.split("-")[1]
+        self.innerVlanIntf = "%s.%s" % (self.outerVlanIntf, self.innerVlan)
+        self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
+        self.cmd('ip link add link %s %s type vlan proto 802.1ad id %s' % (self.defaultIntf(), self.outerVlanIntf, self.outerVlan))
+        self.cmd('ip link add link %s %s type vlan proto 802.1Q id %s' % (self.outerVlanIntf, self.innerVlanIntf, self.innerVlan))
+        self.cmd('ip link set up %s' % self.outerVlanIntf)
+        self.cmd('ip link set up %s' % self.innerVlanIntf)
+
+        for ip in self.ips:
+            self.cmd('ip addr add %s dev %s' % (ip, self.innerVlanIntf))
+
+        self.cmd('ip route add default via %s' % self.gateway)
+
+    def terminate(self, **kwargs):
+        self.cmd('ip link remove link %s' % self.outerVlanIntf)
+        self.cmd('ip link remove link %s' % self.innerVlanIntf)
+        super(DoubleTaggedRoutedHost, self).terminate()
+
 class DhcpClient(Host):
     def __init__(self, name, *args, **kwargs):
         super(DhcpClient, self).__init__(name, **kwargs)

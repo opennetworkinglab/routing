@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import sys
+from time import sleep
+
 sys.path.append('..')
 from mininet.topo import Topo
 from mininet.net import Mininet
@@ -11,7 +13,7 @@ from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
 from routinglib import RoutedHost, RoutedHost6
-from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server
+from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server, DoubleTaggedRoutedHost
 from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
 
@@ -42,10 +44,12 @@ class Trellis( Topo ):
         h2 = self.addHost('h2', cls=DhcpClient, mac='00:aa:00:00:00:02')
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
         h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')
+        dth5 = self.addHost('dth5', cls=DoubleTaggedRoutedHost, mac='00:aa:00:00:00:05', ips=['10.0.2.3/24'], gateway='10.0.2.254', outerVlan=100, innerVlan=200)
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)
         self.addLink(h4, s205)
+        self.addLink(dth5, s204)
 
         # IPv6 Hosts
         h1v6 = self.addHost('h1v6', cls=Dhcp6Client, mac='00:bb:00:00:00:01')
@@ -116,5 +120,8 @@ if __name__ == "__main__":
     net = get_mininet(arguments, topo, switch)
 
     net.start()
+    sleep(3)
+    print 'ping %s' % net.get('h1').IP()
+    net.get('dth5').cmd('ping -c 1 %s'% net.get('h1').IP())
     CLI(net)
     net.stop()

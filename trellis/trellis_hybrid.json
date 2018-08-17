@@ -228,7 +228,7 @@
                 "ipv6Loopback" : "2000::c0a8:0203",
                 "routerMac" : "00:00:00:00:02:03",
                 "isEdgeRouter" : true,
-                "pairDeviceId" : "of:0000000000000204",
+                "pairDeviceId" : "device:bmv2:s204",
                 "pairLocalPort" : 5,
                 "adjacencySids" : []
             },

@@ -70,13 +70,13 @@ class Trellis( Topo ):
 
         # Control plane NAT (for quagga fpm)
         nat = self.addHost('nat', cls=NAT,
-                           ip='172.16.0.1/12',
-                           subnet=str(ip_network(u'172.16.0.0/12')), inNamespace=False)
+                           ip='172.16.0.1/24',
+                           subnet=str(ip_network(u'172.16.0.0/24')), inNamespace=False)
         self.addLink(cs0, nat)
 
         # Internal Quagga bgp1
         intfs = {'bgp1-eth0': {'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:02', 'vlan': '10'},
-                 'bgp1-eth1': {'ipAddrs': ['172.16.0.2/12']}}
+                 'bgp1-eth1': {'ipAddrs': ['172.16.0.2/24']}}
         bgp1 = self.addHost('bgp1', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdbgp1.conf',

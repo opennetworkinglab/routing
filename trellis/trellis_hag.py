@@ -104,18 +104,18 @@ class Trellis( Topo ):
 
         # Control plane NAT (for quagga fpm)
         nat = self.addHost('nat', cls=NAT,
-                           ip='172.16.0.1/12',
-                           subnet=str(ip_network(u'172.16.0.0/12')), inNamespace=False)
+                           ip='172.16.0.1/24',
+                           subnet=str(ip_network(u'172.16.0.0/24')), inNamespace=False)
         self.addLink(cs0, nat)
 
         # Internal Quagga bgp1
         """
         intfs = {'bgp1-eth0': [{'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:03', 'vlan': '110'},
                                {'ipAddrs': ['10.0.7.2/24', '2000::702/120'], 'mac': '00:88:00:00:00:03', 'vlan': '170'}],
-                 'bgp1-eth1': {'ipAddrs': ['172.16.0.3/12']}}
+                 'bgp1-eth1': {'ipAddrs': ['172.16.0.3/24']}}
         """
         intfs = {'bgp1-eth0': {'ipAddrs': ['10.0.1.2/24', '2000::102/120'], 'mac': '00:88:00:00:00:03', 'vlan': '110'},
-                 'bgp1-eth1': {'ipAddrs': ['172.16.0.3/12']}}
+                 'bgp1-eth1': {'ipAddrs': ['172.16.0.3/24']}}
         bgp1 = self.addHost('bgp1', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdbgp1.conf',
@@ -127,10 +127,10 @@ class Trellis( Topo ):
         """
         intfs = {'bgp2-eth0': [{'ipAddrs': ['10.0.5.2/24', '2000::502/120'], 'mac': '00:88:00:00:00:04', 'vlan': '150'},
                                {'ipAddrs': ['10.0.6.2/24', '2000::602/120'], 'mac': '00:88:00:00:00:04', 'vlan': '160'}],
-                 'bgp2-eth1': {'ipAddrs': ['172.16.0.4/12']}}
+                 'bgp2-eth1': {'ipAddrs': ['172.16.0.4/24']}}
         """
         intfs = {'bgp2-eth0': {'ipAddrs': ['10.0.6.2/24', '2000::602/120'], 'mac': '00:88:00:00:00:04', 'vlan': '160'},
-                 'bgp2-eth1': {'ipAddrs': ['172.16.0.4/12']}}
+                 'bgp2-eth1': {'ipAddrs': ['172.16.0.4/24']}}
         bgp2 = self.addHost('bgp2', cls=BgpRouter,
                             interfaces=intfs,
                             quaggaConfFile='./bgpdbgp2.conf',

@@ -34,6 +34,10 @@ class TaggedRoutedHost(RoutedHost):
 
         self.cmd('ip route add default via %s' % self.gateway)
 
+        # update the intf name and host's intf map
+        self.defaultIntf().name = self.vlanIntf
+        self.nameToIntf[self.vlanIntf] = self.defaultIntf()
+
     def terminate(self, **kwargs):
         self.cmd('ip link remove link %s' % self.vlanIntf)
         super(TaggedRoutedHost, self).terminate()

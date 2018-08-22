@@ -235,7 +235,7 @@ class DualHomedDhcpClient(Host):
         intf1 = self.intfs[1].name
         self.bond0 = "%s-bond0" % self.name
         self.cmd('modprobe bonding')
-        self.cmd('ip link add %s type bond' % self.bond0)
+        self.cmd('ip link add %s type bond miimon 100 mode balance-xor xmit_hash_policy layer2+3' % self.bond0)
         self.cmd('ip link set %s down' % intf0)
         self.cmd('ip link set %s down' % intf1)
         self.cmd('ip link set %s master %s' % (intf0, self.bond0))
@@ -266,7 +266,7 @@ class DualHomedDhcp4and6Client(Host):
         intf1 = self.intfs[1].name
         self.bond0 = "%s-bond0" % self.name
         self.cmd('modprobe bonding')
-        self.cmd('ip link add %s type bond' % self.bond0)
+        self.cmd('ip link add %s type bond miimon 100 mode balance-xor xmit_hash_policy layer2+3' % self.bond0)
         self.cmd('ip link set %s down' % intf0)
         self.cmd('ip link set %s down' % intf1)
         self.cmd('ip link set %s master %s' % (intf0, self.bond0))

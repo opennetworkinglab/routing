@@ -26,7 +26,7 @@
                 }
             ]
         },
-        "device:bmv2:s204/5" : {
+        "device:s204/5" : {
             "interfaces" : [
                 {
                     "ips" : [ "10.1.2.254/24"],
@@ -34,7 +34,7 @@
                 }
             ]
         },
-        "device:bmv2:s204/6" : {
+        "device:s204/6" : {
             "interfaces" : [
                 {
                     "name": "h1-eth0",
@@ -43,7 +43,7 @@
                 }
             ]
         },
-        "device:bmv2:s204/7" : {
+        "device:s204/7" : {
             "interfaces" : [
                 {
                     "name": "h2-eth0",
@@ -52,7 +52,7 @@
                 }
             ]
         },
-        "device:bmv2:s204/8" : {
+        "device:s204/8" : {
             "interfaces" : [
                 {
                     "name": "dh1-eth0",
@@ -168,7 +168,7 @@
                 }
             ]
         },
-        "device:bmv2:s208/3" : {
+        "device:s208/3" : {
             "interfaces" : [
                 {
                     "name": "rpd6-eth0",
@@ -186,7 +186,7 @@
                 "ipv4Loopback" : "192.168.0.203",
                 "routerMac" : "00:00:00:00:02:03",
                 "isEdgeRouter" : true,
-                "pairDeviceId" : "device:bmv2:s204",
+                "pairDeviceId" : "device:s204",
                 "pairLocalPort" : 5,
                 "adjacencySids" : []
             },
@@ -197,7 +197,7 @@
                 "longitude" : "-111.359"
             }
         },
-        "device:bmv2:s204" : {
+        "device:s204" : {
             "segmentrouting" : {
                 "name" : "s204",
                 "ipv4NodeSid" : 204,
@@ -251,7 +251,7 @@
                 "longitude" : "-92.029"
             }
         },
-        "device:bmv2:s226" : {
+        "device:s226" : {
             "segmentrouting" : {
                 "name" : "s226",
                 "ipv4NodeSid" : 226,
@@ -300,7 +300,7 @@
                 "longitude" : "-122.359"
             }
         },
-        "device:bmv2:s208" : {
+        "device:s208" : {
             "segmentrouting" : {
                 "name" : "s208",
                 "ipv4NodeSid" : 208,
@@ -315,7 +315,7 @@
                 "longitude" : "-116.029"
             }
         },
-        "device:bmv2:s246" : {
+        "device:s246" : {
             "segmentrouting" : {
                 "name" : "s246",
                 "ipv4NodeSid" : 246,
@@ -330,7 +330,7 @@
                 "longitude" : "-121.679"
             }
         },
-        "device:bmv2:s247" : {
+        "device:s247" : {
             "segmentrouting" : {
                 "name" : "s247",
                 "ipv4NodeSid" : 247,

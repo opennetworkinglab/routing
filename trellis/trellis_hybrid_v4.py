@@ -1,38 +1,48 @@
 #!/usr/bin/python
-
+import argparse
 import sys
 sys.path.append('..')
 from mininet.topo import Topo
 from mininet.cli import CLI
 from mininet.log import setLogLevel
-from mininet.node import RemoteController, OVSBridge, Host, OVSSwitch
-from mininet.link import TCLink
+from mininet.node import OVSBridge, OVSSwitch
 from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
-from routinglib import RoutedHost, RoutedHost6
-from trellislib import DhcpClient, Dhcp6Client, Dhcp4and6Client, DhcpRelay, DhcpServer, Dhcp6Server
+from routinglib import RoutedHost
+from trellislib import DhcpClient, DhcpServer
 from trellislib import DualHomedDhcpClient
 from trellislib import DualHomedDhcp4and6Client
-from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
+from trellislib import get_mininet, set_up_zebra_config
 from functools import partial
-from bmv2 import ONOSBmv2Switch
 
 PIPECONF_ID = 'org.onosproject.pipelines.fabric'
 
-class Trellis( Topo ):
+
+class Trellis(Topo):
     """Trellis HAG topology with both OVS and BMV2 switches"""
 
-    def __init__( self, *args, **kwargs ):
-        Topo.__init__( self, *args, **kwargs )
+    p4_cls = None
+
+    def get_p4_switch_args(self, name):
+        assert Trellis.p4_cls is not None
+        return dict(
+            name=name,
+            cls=Trellis.p4_cls,
+            pipeconf=PIPECONF_ID,
+            portcfg=True,
+            onosdevid="device:" + name)
+
+    def __init__(self, *args, **kwargs):
+        Topo.__init__(self, *args, **kwargs)
 
         # Spines
-        s226 = self.addSwitch('s226', cls=ONOSBmv2Switch, pipeconf=PIPECONF_ID, portcfg=True)
+        s226 = self.addSwitch(**self.get_p4_switch_args('s226'))
         s227 = self.addSwitch('s227', dpid='227')
 
         # Leaves
         s203 = self.addSwitch('s203', dpid='203')
-        s204 = self.addSwitch('s204', cls=ONOSBmv2Switch, pipeconf=PIPECONF_ID, portcfg=True)
+        s204 = self.addSwitch(**self.get_p4_switch_args('s204'))
         s205 = self.addSwitch('s205', dpid='205')
         s206 = self.addSwitch('s206', dpid='206')
 
@@ -190,12 +200,12 @@ class Trellis( Topo ):
         # ----- Secondary fabric -----
 
         # Spines(HAG)
-        s246 = self.addSwitch('s246', cls=ONOSBmv2Switch, pipeconf=PIPECONF_ID, portcfg=True)
-        s247 = self.addSwitch('s247', cls=ONOSBmv2Switch, pipeconf=PIPECONF_ID, portcfg=True)
+        s246 = self.addSwitch(**self.get_p4_switch_args('s246'))
+        s247 = self.addSwitch(**self.get_p4_switch_args('s247'))
 
         # Leaves(DAAS)
         s207 = self.addSwitch('s207', dpid='207')
-        s208 = self.addSwitch('s208', cls=ONOSBmv2Switch, pipeconf=PIPECONF_ID, portcfg=True)
+        s208 = self.addSwitch(**self.get_p4_switch_args('s208'))
 
         # HAG-DAAS Links
         self.addLink(s246, s207)
@@ -221,17 +231,30 @@ class Trellis( Topo ):
 
 
 
-
-
 topos = { 'trellis' : Trellis }
 
 if __name__ == "__main__":
     setLogLevel('debug')
 
+    parser = argparse.ArgumentParser(description="Trellis Arguments")
+    parser.add_argument("-c", "--controllers", help = "Comma Separated List of ONOS controllers",
+                        required = True, default = "")
+    parser.add_argument("-a", "--p4runtime-agent", help = "P4Runtime agent to use on Bmv2 devices (pi or stratum)",
+                        required = False, default = "pi")
+    arguments = parser.parse_args()
+    agent = arguments.p4runtime_agent
+
+    if agent == "stratum":
+        from stratum import ONOSStratumBmv2Switch
+        Trellis.p4_cls = ONOSStratumBmv2Switch
+    else:
+        from bmv2 import ONOSBmv2Switch
+        Trellis.p4_cls = ONOSBmv2Switch
+
+    set_up_zebra_config(arguments.controllers)
+
     topo = Trellis()
     switch = partial(OVSSwitch, protocols='OpenFlow13')
-    arguments = parse_trellis_args()
-    set_up_zebra_config(arguments.controllers)
     net = get_mininet(arguments, topo, switch)
 
     net.start()

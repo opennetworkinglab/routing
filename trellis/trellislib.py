@@ -38,6 +38,8 @@ class TaggedRoutedHost(RoutedHost):
         self.defaultIntf().name = self.vlanIntf
         self.nameToIntf[self.vlanIntf] = self.defaultIntf()
 
+        disable_offload(self, self.vlanIntf)
+
     def terminate(self, **kwargs):
         self.cmd('ip link remove link %s' % self.vlanIntf)
         super(TaggedRoutedHost, self).terminate()
@@ -68,6 +70,8 @@ class DoubleTaggedRoutedHost(RoutedHost):
 
         self.cmd('ip route add default via %s' % self.gateway)
 
+        disable_offload(self, self.innerVlanIntf)
+
     def terminate(self, **kwargs):
         self.cmd('ip link remove link %s' % self.outerVlanIntf)
         self.cmd('ip link remove link %s' % self.innerVlanIntf)
@@ -83,6 +87,8 @@ class DhcpClient(Host):
         super(DhcpClient, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
         self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
+
+        disable_offload(self, self.defaultIntf())
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -100,6 +106,8 @@ class Dhcp6Client(Host):
         self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
         time.sleep(3)
         self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
+
+        disable_offload(self, self.defaultIntf())
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -124,6 +132,8 @@ class Dhcp4and6Client(Host):
         time.sleep(3)
         self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile6, self.leaseFile6, self.defaultIntf()))
 
+        disable_offload(self, self.defaultIntf())
+
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile4)
         self.cmd('rm -rf %s' % self.pidFile4)
@@ -142,6 +152,8 @@ class DhcpServer(RoutedHost):
         self.cmd('touch %s' % self.leasesFile)
         self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
 
+        disable_offload(self, self.defaultIntf())
+
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
@@ -159,6 +171,8 @@ class Dhcp6Server(RoutedHost6):
         self.cmd('ip -6 addr add dev %s scope link %s' % (self.defaultIntf(), linkLocalAddr))
         self.cmd('touch %s' % self.leasesFile)
         self.cmd('%s -q -6 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
+
+        disable_offload(self, self.defaultIntf())
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -183,6 +197,8 @@ class DhcpRelay(Router):
         self.cmd('route add default gw %s' % self.gateway)
         self.cmd('%s -4 -a -pf %s %s %s' % (self.binFile, self.pidFile, ifacesStr, self.serverIp))
 
+        disable_offload(self, ifacesStr)
+
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`', self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
@@ -203,6 +219,8 @@ class TaggedDhcpClient(Host):
         self.cmd('ip link set up %s' % self.vlanIntf)
         self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.vlanIntf))
 
+        disable_offload(self, self.vlanIntf)
+
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
         self.cmd('rm -rf %s' % self.pidFile)
@@ -217,6 +235,8 @@ class TaggedDhcpServer(TaggedRoutedHost):
     def config(self, **kwargs):
         super(TaggedDhcpServer, self).config(**kwargs)
         self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.vlanIntf))
+
+        disable_offload(self, self.vlanIntf)
 
     def terminate(self, **kwargs):
         self.cmd('kill -9 `cat %s`' % self.pidFile)
@@ -244,6 +264,8 @@ class DualHomedDhcpClient(Host):
         self.cmd('ip addr flush dev %s' % intf1)
         self.cmd('ip link set %s up' % self.bond0)
         self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.bond0))
+
+        disable_offload(self, self.bond0)
 
     def terminate(self, **kwargs):
         self.cmd('ip link set %s down' % self.bond0)
@@ -279,6 +301,8 @@ class DualHomedDhcp4and6Client(Host):
         self.cmd('ip link set %s up' % self.bond0)
         self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile4, self.bond0))
         self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile6, self.bond0))
+
+        disable_offload(self, self.bond0)
 
     def terminate(self, **kwargs):
         self.cmd('ip link set %s down' % self.bond0)
@@ -354,4 +378,10 @@ def set_up_zebra_config(controllers_string):
 
     with open("zebradbgp2.conf", "w") as config_file_2:
         config_file_2.write(zebra2)
+
+# Disable NIC offloading
+def disable_offload(host, intf):
+    for attr in ["rx", "tx", "sg"]:
+        cmd = "/sbin/ethtool --offload %s %s off" % (intf, attr)
+        host.cmd(cmd)
 

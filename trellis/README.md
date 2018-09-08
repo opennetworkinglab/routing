@@ -41,7 +41,7 @@ and configuration directory(`--sysconfdir`).
 git clone -b onos-1.11 https://gerrit.opencord.org/quagga
 cd quagga
 ./bootstrap.sh
-./configure --enable-fpm --sbindir=/usr/lib/quagga
+./configure --enable-fpm --sbindir=/usr/lib/quagga enable_user=root enable_group=root
 make
 sudo make install
 cd ..

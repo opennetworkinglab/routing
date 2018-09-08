@@ -45,6 +45,7 @@ cd quagga
 make
 sudo make install
 cd ..
+sudo ldconfig
 ```
 
 ## ONOS - Installation

@@ -149,6 +149,8 @@ class DhcpServer(RoutedHost):
 
     def config(self, **kwargs):
         super(DhcpServer, self).config(**kwargs)
+        if "configFile" in kwargs:
+            self.configFile = kwargs['configFile']
         self.cmd('touch %s' % self.leasesFile)
         self.cmd('%s -q -4 -pf %s -cf %s %s' % (self.binFile, self.pidFile, self.configFile, self.defaultIntf()))
 

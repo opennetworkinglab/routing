@@ -11,7 +11,7 @@
         "of:0000000000000203/6" : {
             "interfaces" : [
                 {
-                    "name": "h5-eth0",
+                    "name": "h3-eth0",
                     "ips" : [ "10.0.4.254/24" ],
                     "vlan-untagged": 22
                 }
@@ -26,7 +26,7 @@
                 }
             ]
         },
-        "device:s204/5" : {
+        "device:bmv2-s204/5" : {
             "interfaces" : [
                 {
                     "ips" : [ "10.1.2.254/24"],
@@ -34,25 +34,16 @@
                 }
             ]
         },
-        "device:s204/6" : {
+        "device:bmv2-s204/6" : {
             "interfaces" : [
                 {
-                    "name": "h1-eth0",
+                    "name": "h4-eth0",
                     "ips" : [ "10.0.2.254/24" ],
                     "vlan-untagged": 20
                 }
             ]
         },
-        "device:s204/7" : {
-            "interfaces" : [
-                {
-                    "name": "h2-eth0",
-                    "ips" : [ "10.0.2.254/24" ],
-                    "vlan-untagged": 20
-                }
-            ]
-        },
-        "device:s204/8" : {
+        "device:bmv2-s204/7" : {
             "interfaces" : [
                 {
                     "name": "dh1-eth0",
@@ -61,19 +52,18 @@
                 }
             ]
         },
-        "of:0000000000000205/8" : {
+        "of:0000000000000205/5" : {
             "interfaces" : [
                 {
-                    "name": "cs1 - dhcp - eth0",
-                    "ips" : [ "10.0.3.254/24" ],
-                    "vlan-untagged": 30
+                    "ips" : [ "10.5.6.254/24" ],
+                    "vlan-tagged": [56]
                 }
             ]
         },
         "of:0000000000000205/6" : {
             "interfaces" : [
                 {
-                    "name": "h3-eth0",
+                    "name": "h5-eth0",
                     "ips" : [ "10.0.3.254/24" ],
                     "vlan-untagged": 30
                 }
@@ -82,31 +72,13 @@
         "of:0000000000000205/7" : {
             "interfaces" : [
                 {
-                    "name": "h4-eth0",
-                    "ips" : [ "10.0.3.254/24"],
+                    "name": "h6-eth0",
+                    "ips" : [ "10.0.3.254/24" ],
                     "vlan-untagged": 30
                 }
             ]
         },
-        "of:0000000000000205/9" : {
-            "interfaces" : [
-                {
-                    "name": "bgp1-eth0",
-                    "ips" : [ "10.0.1.254/24"],
-                    "vlan-tagged": [110]
-                }
-            ]
-        },
-        "of:0000000000000205/10" : {
-            "interfaces" : [
-                {
-                    "name": "r1-eth0",
-                    "ips" : [ "10.0.1.254/24"],
-                    "vlan-untagged": 110
-                }
-            ]
-        },
-        "of:0000000000000205/11" : {
+        "of:0000000000000205/8" : {
             "interfaces" : [
                 {
                     "name": "dh2-eth0",
@@ -115,11 +87,30 @@
                 }
             ]
         },
-        "of:0000000000000205/5" : {
+        "of:0000000000000205/9" : {
             "interfaces" : [
                 {
-                    "ips" : [ "10.5.6.254/24" ],
-                    "vlan-tagged": [56]
+                    "name": "cs1 - dhcp - eth0",
+                    "ips" : [ "10.0.3.254/24" ],
+                    "vlan-untagged": 30
+                }
+            ]
+        },
+        "of:0000000000000205/10" : {
+            "interfaces" : [
+                {
+                    "name": "bgp1-eth0",
+                    "ips" : [ "10.0.1.254/24"],
+                    "vlan-tagged": [110]
+                }
+            ]
+        },
+        "of:0000000000000205/11" : {
+            "interfaces" : [
+                {
+                    "name": "r1-eth0",
+                    "ips" : [ "10.0.1.254/24"],
+                    "vlan-untagged": 110
                 }
             ]
         },
@@ -134,15 +125,6 @@
         "of:0000000000000206/6" : {
             "interfaces" : [
                 {
-                    "name": "bgp2-eth0",
-                    "ips" : [ "10.0.6.254/24"],
-                    "vlan-tagged": [160]
-                }
-            ]
-        },
-        "of:0000000000000206/8" : {
-            "interfaces" : [
-                {
                     "name": "dh2-eth1",
                     "ips" : [ "10.5.6.254/24"],
                     "vlan-untagged": 56
@@ -150,6 +132,16 @@
             ]
         },
         "of:0000000000000206/7" : {
+            "interfaces" : [
+                {
+                    "name": "bgp2-eth0",
+                    "ips" : [ "10.0.6.254/24"],
+                    "vlan-tagged": [160]
+                }
+            ]
+        },
+
+        "of:0000000000000206/8" : {
             "interfaces" : [
                 {
                     "name": "r2-eth0",
@@ -162,16 +154,16 @@
         "of:0000000000000207/3" : {
             "interfaces" : [
                 {
-                    "name": "rpd5-eth0",
+                    "name": "h1-eth0",
                     "ips" : [ "10.11.1.254/24" ],
                     "vlan-untagged": 1000
                 }
             ]
         },
-        "device:s208/3" : {
+        "device:bmv2-s208/3" : {
             "interfaces" : [
                 {
-                    "name": "rpd6-eth0",
+                    "name": "h2-eth0",
                     "ips" : [ "10.11.2.254/24" ],
                     "vlan-untagged": 1002
                 }
@@ -181,25 +173,22 @@
     "devices" : {
         "of:0000000000000203" : {
             "segmentrouting" : {
-                "name" : "s203",
+                "name" : "ovs-s203",
                 "ipv4NodeSid" : 203,
                 "ipv4Loopback" : "192.168.0.203",
                 "routerMac" : "00:00:00:00:02:03",
                 "isEdgeRouter" : true,
-                "pairDeviceId" : "device:s204",
+                "pairDeviceId" : "device:bmv2-s204",
                 "pairLocalPort" : 5,
                 "adjacencySids" : []
             },
             "basic" : {
-                "name": "s203",
-                "driver" : "ofdpa-ovs",
-                "latitude" : "36.766",
-                "longitude" : "-111.359"
+                "driver" : "ofdpa-ovs"
             }
         },
-        "device:s204" : {
+        "device:bmv2-s204" : {
             "segmentrouting" : {
-                "name" : "s204",
+                "name" : "bmv2-s204",
                 "ipv4NodeSid" : 204,
                 "ipv4Loopback" : "192.168.0.204",
                 "routerMac" : "00:00:00:00:02:03",
@@ -207,16 +196,11 @@
                 "pairDeviceId" : "of:0000000000000203",
                 "pairLocalPort" : 5,
                 "adjacencySids" : []
-            },
-            "basic" : {
-                "name": "s204",
-                "latitude" : "36.766",
-                "longitude" : "-106.359"
             }
         },
         "of:0000000000000205" : {
             "segmentrouting" : {
-                "name" : "s205",
+                "name" : "ovs-s205",
                 "ipv4NodeSid" : 205,
                 "ipv4Loopback" : "192.168.0.205",
                 "routerMac" : "00:00:00:00:02:05",
@@ -226,16 +210,12 @@
                 "pairLocalPort": 5
             },
             "basic" : {
-                "name": "s205",
-                "driver" : "ofdpa-ovs",
-                "latitude" : "36.766",
-                "longitude" : "-96.89"
-
+                "driver" : "ofdpa-ovs"
             }
         },
         "of:0000000000000206" : {
             "segmentrouting" : {
-                "name" : "s206",
+                "name" : "ovs-s206",
                 "ipv4NodeSid" : 206,
                 "ipv4Loopback" : "192.168.0.206",
                 "routerMac" : "00:00:00:00:02:05",
@@ -245,30 +225,22 @@
                 "pairLocalPort": 5
             },
             "basic" : {
-                "name": "s206",
-                "driver" : "ofdpa-ovs",
-                "latitude" : "36.766",
-                "longitude" : "-92.029"
+                "driver" : "ofdpa-ovs"
             }
         },
-        "device:s226" : {
+        "device:bmv2-s226" : {
             "segmentrouting" : {
-                "name" : "s226",
+                "name" : "ovs-s226",
                 "ipv4NodeSid" : 226,
                 "ipv4Loopback" : "192.168.0.226",
                 "routerMac" : "00:00:00:00:02:26",
                 "isEdgeRouter" : false,
                 "adjacencySids" : []
-            },
-            "basic" : {
-                "name": "s226",
-                "latitude" : "44.15",
-                "longitude" : "-107.679"
             }
         },
         "of:0000000000000227" : {
             "segmentrouting" : {
-                "name" : "s227",
+                "name" : "ovs-s227",
                 "ipv4NodeSid" : 227,
                 "ipv4Loopback" : "192.168.0.227",
                 "routerMac" : "00:00:00:00:02:27",
@@ -276,17 +248,13 @@
                 "adjacencySids" : []
             },
             "basic" : {
-                "name": "s227",
-                "driver" : "ofdpa-ovs",
-                "latitude" : "44.205",
-                "longitude" : "-96.359"
-
+                "driver" : "ofdpa-ovs"
             }
         },
 
         "of:0000000000000207" : {
             "segmentrouting" : {
-                "name" : "s207",
+                "name" : "ovs-s207",
                 "ipv4NodeSid" : 207,
                 "ipv4Loopback" : "192.168.0.207",
                 "routerMac" : "00:00:00:00:02:07",
@@ -294,68 +262,146 @@
                 "adjacencySids" : []
             },
             "basic" : {
-                "name": "s207",
-                "driver" : "ofdpa-ovs",
-                "latitude" : "36.766",
-                "longitude" : "-122.359"
+                "driver" : "ofdpa-ovs"
             }
         },
-        "device:s208" : {
+        "device:bmv2-s208" : {
             "segmentrouting" : {
-                "name" : "s208",
+                "name" : "bmv2-s208",
                 "ipv4NodeSid" : 208,
                 "ipv4Loopback" : "192.168.0.208",
                 "routerMac" : "00:00:00:00:02:08",
                 "isEdgeRouter" : true,
                 "adjacencySids" : []
-            },
-            "basic" : {
-                "name": "s208",
-                "latitude" : "36.766",
-                "longitude" : "-116.029"
             }
         },
-        "device:s246" : {
+        "device:bmv2-s246" : {
             "segmentrouting" : {
-                "name" : "s246",
+                "name" : "bmv2-s246",
                 "ipv4NodeSid" : 246,
                 "ipv4Loopback" : "192.168.0.246",
                 "routerMac" : "00:00:00:00:02:46",
                 "isEdgeRouter" : false,
                 "adjacencySids" : []
-            },
-            "basic" : {
-                "name": "s246",
-                "latitude" : "40.15",
-                "longitude" : "-121.679"
             }
         },
-        "device:s247" : {
+        "device:bmv2-s247" : {
             "segmentrouting" : {
-                "name" : "s247",
+                "name" : "bmv2-s247",
                 "ipv4NodeSid" : 247,
                 "ipv4Loopback" : "192.168.0.247",
                 "routerMac" : "00:00:00:00:02:47",
                 "isEdgeRouter" : false,
                 "adjacencySids" : []
-            },
-            "basic" : {
-                "name": "s247",
-                "latitude" : "40.205",
-                "longitude" : "-117.359"
-
             }
         }
-
     },
     "apps" : {
         "org.onosproject.dhcprelay" : {
             "default": [
                 {
-                    "dhcpServerConnectPoint": "of:0000000000000205/8",
+                    "dhcpServerConnectPoint": "of:0000000000000205/9",
                     "serverIps": ["10.0.3.253"]
                 }
             ]
+        }
+    },
+    "hosts": {
+        "00:DD:00:00:00:01/None": {
+            "basic": {
+                "name": "Host 1",
+                "latitude": "49",
+                "longitude": "-105"
+            }
+        },
+        "00:DD:00:00:00:02/None": {
+            "basic": {
+                "name": "Host 2",
+                "latitude": "49",
+                "longitude": "-95"
+            }
+        },
+        "00:AA:00:00:00:03/None": {
+            "basic": {
+                "name": "Host 3",
+                "latitude": "33",
+                "longitude": "-110"
+            }
+        },
+        "00:AA:00:00:00:04/None": {
+            "basic": {
+                "name": "Host 4",
+                "latitude": "33",
+                "longitude": "-105"
+            }
+        },
+        "00:AA:00:00:00:05/None": {
+            "basic": {
+                "name": "Host 5",
+                "latitude": "33",
+                "longitude": "-95"
+            }
+        },
+        "00:AA:00:00:00:06/None": {
+            "basic": {
+                "name": "Host 6",
+                "latitude": "33",
+                "longitude": "-92.5"
+            }
+        },
+        "00:CC:00:00:00:01/None": {
+            "basic": {
+                "name": "Dual Homed Host 1",
+                "latitude": "31",
+                "longitude": "-107.5"
+            }
+        },
+        "00:CC:00:00:00:02/None": {
+            "basic": {
+                "name": "Dual Homed Host 2",
+                "latitude": "31",
+                "longitude": "-92.5"
+            }
+        },
+        "00:99:00:00:00:01/None": {
+            "basic": {
+                "name": "DHCP Server",
+                "latitude": "33",
+                "longitude": "-98"
+            }
+        },
+        "00:88:00:00:00:01/None": {
+            "basic": {
+                "name": "Upstream Router 1",
+                "latitude": "39",
+                "longitude": "-85",
+                "uiType": "m_router"
+            }
+        },
+        "00:88:00:00:00:02/None": {
+            "basic": {
+                "name": "Upstream Router 2",
+                "latitude": "37",
+                "longitude": "-85",
+                "uiType": "m_router"
+            }
+        },
+
+        "00:88:00:00:00:03/110": {
+            "basic": {
+                "name": "Quagga 1",
+                "latitude": "35",
+                "longitude": "-98",
+                "uiType": "m_bgpSpeaker"
+            }
+        },
+        "00:88:00:00:00:04/160": {
+            "basic": {
+                "name": "Quagga 2",
+                "latitude": "33",
+                "longitude": "-90",
+                "uiType": "m_bgpSpeaker"
+            }
         }
     }
 }

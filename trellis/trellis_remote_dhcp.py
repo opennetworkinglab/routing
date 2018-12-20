@@ -49,7 +49,7 @@ class Trellis( Topo ):
         # NOTE avoid using 10.0.1.0/24 which is the default subnet of quaggas
         # NOTE avoid using 00:00:00:00:00:xx which is the default mac of host behind upstream router
         # IPv4 Hosts
-        h1 = self.addHost('h1', cls=DhcpClient, mac='00:aa:00:00:00:01')
+        h1 = self.addHost('h1', cls=DhcpClient, mac='00:ee:00:00:00:01')
         h2 = self.addHost('h2', cls=DhcpClient, mac='00:aa:00:00:00:02')
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
         h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')

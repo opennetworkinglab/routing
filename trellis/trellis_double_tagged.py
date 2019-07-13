@@ -15,6 +15,7 @@ from routinglib import RoutedHost, RoutedHost6
 from trellislib import DhcpClient, Dhcp6Client, DhcpRelay, DhcpServer, Dhcp6Server, DoubleTaggedRoutedHost
 from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
+from time import sleep
 
 class Trellis( Topo ):
     "Trellis basic topology"

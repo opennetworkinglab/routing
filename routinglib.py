@@ -153,6 +153,9 @@ class QuaggaRouter(Router):
         if self.defaultRoute:
             self.cmd('ip route add default via %s' % self.defaultRoute)
 
+        for interface in self.interfaces:
+            disable_offload(self, interface)
+
     def terminate(self, **kwargs):
         self.cmd("ps ax | grep '%s' | awk '{print $1}' | xargs kill"
                  % (self.socket))
@@ -339,6 +342,8 @@ class BgpRouter(QuaggaRouter):
                                         defaultRoute=defaultRoute,
                                         protocols=[bgp],
                                         *args, **kwargs)
+    def config(self, **kwargs):
+        super(BgpRouter, self).config(**kwargs)
 
 class RouterData(object):
 
@@ -678,3 +683,9 @@ class RoutingCli( CLI ):
             for intf in self.mn.get( host ).intfList( ):
                 intf.link.intf1.ifconfig( op )
                 intf.link.intf2.ifconfig( op )
+
+# Disable NIC offloading
+def disable_offload(host, intf):
+    for attr in ["rx", "tx", "sg"]:
+        cmd = "/sbin/ethtool --offload %s %s off" % (intf, attr)
+        host.cmd(cmd)

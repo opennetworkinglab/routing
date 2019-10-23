@@ -70,7 +70,7 @@ class Trellis( Topo ):
         self.addLink(h4v6, s205)
 
         # Control plane switch (for quagga fpm)
-        cs0 = self.addSwitch('cs0', cls=OVSBridge)
+        cs0 = self.addSwitch('cs0', cls=OVSBridge, datapath='user')
 
         # Control plane NAT (for quagga fpm)
         nat = self.addHost('nat', cls=NAT,
@@ -98,7 +98,7 @@ class Trellis( Topo ):
         self.addLink(r1, s205)
 
         # External switch behind r1
-        rs0 = self.addSwitch('rs0', cls=OVSBridge)
+        rs0 = self.addSwitch('rs0', cls=OVSBridge, datapath='user')
         self.addLink(r1, rs0)
 
         # External IPv4 Host behind r1
@@ -118,7 +118,7 @@ topos = { 'trellis' : Trellis }
 if __name__ == "__main__":
     setLogLevel('debug')
     topo = Trellis()
-    switch = partial(OVSSwitch, protocols='OpenFlow13')
+    switch = partial(OVSSwitch, protocols='OpenFlow13', datapath='user')
     arguments = parse_trellis_args()
     set_up_zebra_config(arguments.controllers)
     net = get_mininet(arguments, topo, switch)

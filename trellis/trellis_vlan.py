@@ -44,7 +44,7 @@ class Trellis( Topo ):
         h3 = self.addHost('h3', cls=DhcpClient, mac='00:aa:00:00:00:03')
         h4 = self.addHost('h4', cls=DhcpClient, mac='00:aa:00:00:00:04')
         # In order to emulate tagged Quagga VM in h4
-        h4ovs = self.addSwitch('h4ovs', cls=OVSBridge)
+        h4ovs = self.addSwitch('h4ovs', cls=OVSBridge, datapath='user')
         self.addLink(h1, s204)
         self.addLink(h2, s204)
         self.addLink(h3, s205)
@@ -66,7 +66,7 @@ class Trellis( Topo ):
         self.addLink(dhcp, s205)
 
         # Control plane switch (for quagga fpm)
-        cs0 = self.addSwitch('cs0', cls=OVSBridge)
+        cs0 = self.addSwitch('cs0', cls=OVSBridge, datapath='user')
 
         # Control plane NAT (for quagga fpm)
         nat = self.addHost('nat', cls=NAT,
@@ -106,7 +106,7 @@ topos = { 'trellis' : Trellis }
 if __name__ == "__main__":
     setLogLevel('debug')
     topo = Trellis()
-    switch = partial(OVSSwitch, protocols='OpenFlow13')
+    switch = partial(OVSSwitch, protocols='OpenFlow13', datapath='user')
     arguments = parse_trellis_args()
     set_up_zebra_config(arguments.controllers)
     net = get_mininet(arguments, topo, switch)

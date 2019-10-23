@@ -101,12 +101,12 @@ class Trellis(Topo):
                             configFile='./dhcpd_hybrid_v4.conf')
 
         # Dataplane L2 plane switch (for DHCP servers)
-        cs1 = self.addSwitch('cs1', cls=OVSBridge)
+        cs1 = self.addSwitch('cs1', cls=OVSBridge, datapath='user')
         self.addLink(cs1, s205)
         self.addLink(dhcp, cs1)
 
         # Control plane switch (for quagga fpm)
-        cs0 = self.addSwitch('cs0', cls=OVSBridge)
+        cs0 = self.addSwitch('cs0', cls=OVSBridge, datapath='user')
 
         # Control plane NAT (for quagga fpm)
         nat = self.addHost('nat', cls=NAT,
@@ -290,7 +290,7 @@ if __name__ == "__main__":
     set_up_zebra_config(arguments.controllers)
 
     topo = Trellis()
-    switch = partial(ONOSOVSSwitch, protocols='OpenFlow13')
+    switch = partial(ONOSOVSSwitch, protocols='OpenFlow13', datapath='user')
     net = get_mininet(arguments, topo, switch)
 
     net.start()

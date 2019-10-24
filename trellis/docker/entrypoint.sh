@@ -13,11 +13,20 @@ ONOS_IP=`getent hosts $ONOS_HOSTNAME | awk '{ print $1 }'`
 /usr/sbin/ovs-vswitchd --detach
 ovs-vsctl set Open_vSwitch . other_config:vlan-limit=2
 
-# Push netcfg to ONOS
 cd routing/trellis
-echo ${ONOS_IP}
-head ${TOPO}.json
-onos-netcfg ${ONOS_IP} ${TOPO}.json
+NETCFG=${EXTERNAL_VOLUME}/${NETCFG_FILE}
+echo "Check custom config, ${NETCFG}"
+
+# Use custom file if ${NETCFG_FILE} be set
+if [[ ${NETCFG_FILE} ]]; then
+    if [ -f ${NETCFG} ]; then
+        echo "Detected custom cfg ${NETCFG}, use it"
+        onos-netcfg ${ONOS_IP} ${NETCFG} || exit 0
+    else
+        echo "${NETCFG} does not exist"
+        exit 0
+    fi
+fi
 
 # Start mininet
 ./${TOPO}.py -c ${ONOS_IP}

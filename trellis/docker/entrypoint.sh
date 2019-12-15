@@ -26,6 +26,8 @@ if [[ ${NETCFG_FILE} ]]; then
         echo "${NETCFG} does not exist"
         exit 0
     fi
+else
+    onos-netcfg ${ONOS_IP} ${TOPO}.json || exit 0
 fi
 
 # Start mininet

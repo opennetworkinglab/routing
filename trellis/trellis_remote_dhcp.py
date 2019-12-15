@@ -7,10 +7,9 @@ from mininet.net import Mininet
 from mininet.cli import CLI
 from mininet.log import setLogLevel
 from mininet.node import RemoteController, OVSBridge, Host, OVSSwitch
-from mininet.nodelib import NAT
 from ipaddress import ip_network
 from routinglib import BgpRouter
-from routinglib import RoutedHost
+from routinglib import RoutedHost, UserNAT
 from trellislib import DhcpClient, DhcpServer, DhcpRelay
 from trellislib import get_mininet, parse_trellis_args, set_up_zebra_config
 from functools import partial
@@ -73,7 +72,7 @@ class Trellis( Topo ):
         cs0 = self.addSwitch('cs0', cls=OVSBridge, datapath='user')
 
         # Control plane NAT (for quagga fpm)
-        nat = self.addHost('nat', cls=NAT,
+        nat = self.addHost('nat', cls=UserNAT,
                            ip='172.16.0.1/24',
                            subnet=str(ip_network(u'172.16.0.0/24')), inNamespace=False)
         self.addLink(cs0, nat)

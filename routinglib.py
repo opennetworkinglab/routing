@@ -11,6 +11,16 @@ from mininet.cli import CLI
 from ipaddress import ip_network, ip_address, ip_interface
 import os
 
+class UserNAT(NAT):
+    """Disable NIC offloading such that this NAT can be used with user space OVS."""
+    def __init(self, name, *args, **kwargs):
+        super(UserNAT, self).__init__(name, *args, **kwargs)
+
+    def config(self, **kwargs):
+        super(UserNAT, self).config(**kwargs)
+        disable_offload(self, self.localIntf)
+        disable_offload(self, self.defaultIntf)
+
 class RoutedHost(Host):
     """Host that can be configured with multiple IP addresses."""
     def __init__(self, name, ips, gateway, *args, **kwargs):

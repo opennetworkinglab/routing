@@ -9,6 +9,8 @@
 trellis/.vagrant/
 # virtualbox
 trellis/*.log
+# patch
+*.txt
 
 trellis/zebradbgp1.conf
 trellis/zebradbgp2.conf

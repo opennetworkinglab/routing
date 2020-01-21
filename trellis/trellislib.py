@@ -86,7 +86,7 @@ class DhcpClient(Host):
     def config(self, **kwargs):
         super(DhcpClient, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
+        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s &' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
         disable_offload(self, self.defaultIntf())
 
@@ -100,12 +100,13 @@ class Dhcp6Client(Host):
         super(Dhcp6Client, self).__init__(name, **kwargs)
         self.pidFile = '/run/dhclient-%s.pid' % self.name
         self.leaseFile = '/var/lib/dhcp/dhcpclient6-%s.lease' % (self.name, )
+        self.sleep = kwargs.get('sleep', 3)
 
     def config(self, **kwargs):
         super(Dhcp6Client, self).config(**kwargs)
         self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
-        time.sleep(3)
-        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile, self.leaseFile, self.defaultIntf()))
+        time.sleep(self.sleep)
+        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s &' % (self.pidFile, self.leaseFile, self.defaultIntf()))
 
         disable_offload(self, self.defaultIntf())
 
@@ -122,15 +123,16 @@ class Dhcp4and6Client(Host):
         self.pidFile6 = '/run/dhclient-%s-6.pid' % self.name
         self.leaseFile4 = '/var/lib/dhcp/dhcpclient-%s.lease' % (self.name, )
         self.leaseFile6 = '/var/lib/dhcp/dhcpclient6-%s.lease' % (self.name, )
+        self.sleep = kwargs.get('sleep', 3)
 
     def config(self, **kwargs):
         super(Dhcp4and6Client, self).config(**kwargs)
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
-        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s' % (self.pidFile4, self.leaseFile4, self.defaultIntf()))
+        self.cmd('dhclient -q -4 -nw -pf %s -lf %s %s &' % (self.pidFile4, self.leaseFile4, self.defaultIntf()))
 
         self.cmd('ip -4 addr flush dev %s' % self.defaultIntf())
-        time.sleep(3)
-        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s' % (self.pidFile6, self.leaseFile6, self.defaultIntf()))
+        time.sleep(self.sleep)
+        self.cmd('dhclient -q -6 -nw -pf %s -lf %s %s &' % (self.pidFile6, self.leaseFile6, self.defaultIntf()))
 
         disable_offload(self, self.defaultIntf())
 
@@ -219,7 +221,7 @@ class TaggedDhcpClient(Host):
         self.cmd('ip addr flush dev %s' % self.defaultIntf())
         self.cmd('ip link add link %s name %s type vlan id %s' % (self.defaultIntf(), self.vlanIntf, self.vlan))
         self.cmd('ip link set up %s' % self.vlanIntf)
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.vlanIntf))
+        self.cmd('dhclient -q -4 -nw -pf %s %s &' % (self.pidFile, self.vlanIntf))
 
         disable_offload(self, self.vlanIntf)
 
@@ -265,7 +267,7 @@ class DualHomedDhcpClient(Host):
         self.cmd('ip addr flush dev %s' % intf0)
         self.cmd('ip addr flush dev %s' % intf1)
         self.cmd('ip link set %s up' % self.bond0)
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.bond0))
+        self.cmd('dhclient -q -4 -nw -pf %s %s &' % (self.pidFile, self.bond0))
 
         disable_offload(self, self.bond0)
 
@@ -314,6 +316,7 @@ class DualHomedDhcp4and6Client(Host):
         self.pidFile4 = '/run/dhclient-%s-4.pid' % self.name
         self.pidFile6 = '/run/dhclient-%s-6.pid' % self.name
         self.bond0 = None
+        self.sleep = kwargs.get('sleep', 3)
 
     def config(self, **kwargs):
         super(DualHomedDhcp4and6Client, self).config(**kwargs)
@@ -330,10 +333,10 @@ class DualHomedDhcp4and6Client(Host):
         self.cmd('ip -4 addr flush dev %s' % intf1)
         self.cmd('ip addr flush dev %s' % intf0)
         self.cmd('ip addr flush dev %s' % intf1)
-        time.sleep(3)
+        time.sleep(self.sleep)
         self.cmd('ip link set %s up' % self.bond0)
-        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile4, self.bond0))
-        self.cmd('dhclient -q -6 -nw -pf %s %s' % (self.pidFile6, self.bond0))
+        self.cmd('dhclient -q -4 -nw -pf %s %s &' % (self.pidFile4, self.bond0))
+        self.cmd('dhclient -q -6 -nw -pf %s %s &' % (self.pidFile6, self.bond0))
 
         disable_offload(self, self.bond0)
 
@@ -364,11 +367,19 @@ def mac_to_ipv6_linklocal(mac):
 
     return 'fe80::{:04x}:{:02x}ff:fe{:02x}:{:04x}'.format(high2, high1, low1, low2)
 
+def get_mac_from_int(number):
+    mac = hex(number)[2:]
+    mac = '0' * ( 12 - len( mac ) ) + mac
+    mac = ':'.join(s.encode('hex') for s in mac.decode('hex'))
+    return mac
+
 # Parses Trellis parameters
 def parse_trellis_args():
     parser = argparse.ArgumentParser(description="Trellis Arguments")
     parser.add_argument("-c", "--controllers", help = "Comma Separated List of ONOS controllers",
                         required = True, default = "")
+    parser.add_argument("-a", "--aggregation", help = "number of aggregation switches (1-4)",
+                        required = False, default = 1)
     return parser.parse_args()
 
 # Gets a mininet instance

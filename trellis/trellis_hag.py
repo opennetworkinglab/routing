@@ -9,7 +9,7 @@ from mininet.node import RemoteController, OVSBridge, Host, OVSSwitch
 from mininet.link import TCLink
 from ipaddress import ip_network
 from routinglib import BgpRouter
-from routinglib import RoutedHost, RoutedHost6, NAT
+from routinglib import RoutedHost, RoutedHost6, UserNAT
 from trellislib import DhcpClient, Dhcp6Client, Dhcp4and6Client, DhcpRelay, DhcpServer, Dhcp6Server
 from trellislib import DualHomedDhcpClient
 from trellislib import DualHomedDhcp4and6Client

@@ -276,6 +276,37 @@ class DualHomedDhcpClient(Host):
         self.cmd('rm -rf %s' % self.pidFile)
         super(DualHomedDhcpClient, self).terminate()
 
+class DualHomedLacpDhcpClient(Host):
+    def __init__(self, name, *args, **kwargs):
+        super(DualHomedLacpDhcpClient, self).__init__(name, **kwargs)
+        self.pidFile = '/run/dhclient-%s.pid' % self.name
+        self.bond0 = None
+
+    def config(self, **kwargs):
+        super(DualHomedLacpDhcpClient, self).config(**kwargs)
+        intf0 = self.intfs[0].name
+        intf1 = self.intfs[1].name
+        self.bond0 = "%s-bond0" % self.name
+        self.cmd('modprobe bonding')
+        self.cmd('ip link add %s type bond miimon 100 mode 802.3ad xmit_hash_policy layer2+3' % self.bond0)
+        self.cmd('ip link set %s down' % intf0)
+        self.cmd('ip link set %s down' % intf1)
+        self.cmd('ip link set %s master %s' % (intf0, self.bond0))
+        self.cmd('ip link set %s master %s' % (intf1, self.bond0))
+        self.cmd('ip addr flush dev %s' % intf0)
+        self.cmd('ip addr flush dev %s' % intf1)
+        self.cmd('ip link set %s up' % self.bond0)
+        self.cmd('dhclient -q -4 -nw -pf %s %s' % (self.pidFile, self.bond0))
+
+        disable_offload(self, self.bond0)
+
+    def terminate(self, **kwargs):
+        self.cmd('ip link set %s down' % self.bond0)
+        self.cmd('ip link delete %s' % self.bond0)
+        self.cmd('kill -9 `cat %s`' % self.pidFile)
+        self.cmd('rm -rf %s' % self.pidFile)
+        super(DualHomedLacpDhcpClient, self).terminate()
+
 # Dual-homed Client that has both IPv4 and IPv6 addresses
 class DualHomedDhcp4and6Client(Host):
     def __init__(self, name, *args, **kwargs):

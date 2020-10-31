@@ -12,7 +12,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Quagga
-RUN git clone -b onos-1.11 https://gerrit.opencord.org/quagga
+RUN git clone --depth 1 -b onos-1.11 https://gerrit.opencord.org/quagga
 WORKDIR $HOME/quagga
 RUN ./bootstrap.sh
 RUN ./configure --enable-fpm --sbindir=/usr/lib/quagga enable_user=root enable_group=root
@@ -21,7 +21,7 @@ RUN make install
 
 # Clone Trellis simulation repo
 WORKDIR $HOME
-RUN git clone https://gerrit.onosproject.org/routing
+RUN git clone --depth 1 https://gerrit.onosproject.org/routing
 
 # Update dynamic linker
 RUN ldconfig
